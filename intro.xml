@@ -1,0 +1,192 @@
+<!DOCTYPE chapter>
+<preface xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="intro" xml:lang="ru">
+    <info>
+        <title>Введение</title>
+    </info>
+    <para> Это руководство описывает язык SQL, поддерживаемый СУБД Firebird 2.5. </para>
+    <para>Известно, что СУБД Firebird начала создаваться на основе открытого кода СУБД InterBase
+        6.0. В период с 2000 по 2014 год было выпущено 5 основных релизов Firebird: 1.0.х.х; 1.5.х;
+        2.0.х; 2.1.х; 2.5.х., релиз 3.0 запланирован на 2016 год.</para>
+    <para>Однако, за всё время развития проекта Firebird, а это более 10 лет, на русском языке до
+        сих пор не было создано единой документации. Несколько переведённых материалов по отдельным
+        вопросам можно было найти на официальном сайте <link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            xlink:href="http://www.firebirdsql.org/en/reference-manuals/"/>. Но их, во-первых, очень
+        мало, а во-вторых зачастую они уже неактуальны. Наибольшее количество русскоязычной
+        информации о Firebird находится на сайте <link xmlns:xlink="http://www.w3.org/1999/xlink"
+            xlink:href="http://ibase.ru/develop.htm"/>, за что огромное спасибо Дмитрию Кузьменко
+        (IBSurgeon/iBase.ru).</para>
+    <para> Но единой русскоязычной документации о Firebird до сих пор не существовало. </para>
+    <para> Данное «Руководство по языку SQL СУБД Firebird» — это первый русскоязычный документ,
+        полностью освещающий все аспекты и особенности работы с языком SQL Firebird для текущей
+        (актуальной) на сегодняшний день версии СУБД Firebird 2.5. В руководстве также приводятся
+        практические примеры использования SQL, многие из которых взяты из реальной практики. </para>
+
+    <simplesect xml:id="intro-what">
+        <info>
+            <title>Что содержит данный документ</title>
+        </info>
+        <para> Данный документ содержит описание языка SQL Firebird. Он охватывает следующие
+            основные области: </para>
+        <para>
+            <itemizedlist spacing="compact">
+                <listitem>
+                    <para>Основные положения;</para>
+                </listitem>
+                <listitem>
+                    <para>Зарезервированные и ключевые слова;</para>
+                </listitem>
+                <listitem>
+                    <para>Типы и подтипы данных;</para>
+                </listitem>
+                <listitem>
+                    <para>Операторы DDL (Data Definition Language — язык создания данных); </para>
+                </listitem>
+                <listitem>
+                    <para>Операторы DML (Data Manipulation Language — язык обращения с данными);
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>Операторы управления транзакциями;</para>
+                </listitem>
+                <listitem>
+                    <para>Обработка исключений;</para>
+                </listitem>
+                <listitem>
+                    <para>Операторы PSQL (Procedural SQL — процедурный SQL, используется в хранимых
+                        процедурах, триггерах и выполнимых блоках);</para>
+                </listitem>
+                <listitem>
+                    <para>Безопасность и операторы управления доступом;</para>
+                </listitem>
+                <listitem>
+                    <para>Операторы и предикаты (утверждения);</para>
+                </listitem>
+                <listitem>
+                    <para>Агрегатные функции;</para>
+                </listitem>
+                <listitem>
+                    <para>Встроенные функции;</para>
+                </listitem>
+                <listitem>
+                    <para>Коды ошибок и обработка исключительных ситуаций;</para>
+                </listitem>
+                <listitem>
+                    <para>Описание системных таблиц и таблиц мониторинга;</para>
+                </listitem>
+                <listitem>
+                    <para>Наборы символов и соответствующие им порядки сортировки.</para>
+                </listitem>
+            </itemizedlist>
+        </para>
+        <para> Вопросы, не связанные с SQL в данном документе не рассматриваются. </para>
+    </simplesect>
+    <simplesect xml:id="intro-authors">
+        <info>
+            <title>Авторство</title>
+        </info>
+
+        <para>В работе над руководством принимали участие:</para>
+        <para>
+            <itemizedlist spacing="compact">
+                <listitem>
+                    <para><personname><surname>Денис</surname><firstname>Симонов</firstname></personname>;</para>
+                </listitem>
+                <listitem>
+                    <para><personname><surname>Пол</surname><firstname>Винкенуг</firstname></personname>;</para>
+                </listitem>
+                <listitem>
+                    <para><personname><firstname>Дмитрий</firstname><surname>Филиппов</surname></personname>;</para>
+                </listitem>
+                <listitem>
+                    <para><personname><firstname>Дмитрий</firstname><surname>Еманов</surname></personname>;</para>
+                </listitem>
+                <listitem>
+                    <para><personname><firstname>Александр</firstname><surname>Карпейкин</surname></personname>;</para>
+                </listitem>
+                <listitem>
+                    <para><personname><firstname>Алексей</firstname><surname>Ковязин</surname></personname>;</para>
+                </listitem>
+                <listitem>
+                    <para><personname><firstname>Дмитрий</firstname><surname>Кузьменко</surname></personname>.</para>
+                </listitem>
+            </itemizedlist>
+        </para>
+        <para> Редакторы –
+                <personname><firstname>Александр</firstname><surname>Карпейкин</surname></personname>,
+                    <personname><firstname>Дмитрий</firstname><surname>Кузьменко</surname></personname>,
+                    <personname><firstname>Алексей</firstname><surname>Ковязин</surname></personname>,
+                    <personname><firstname>Денис</firstname><surname>Симонов</surname></personname>.
+        </para>
+    </simplesect>
+    <simplesect xml:id="intro-sponsors">
+        <info>
+            <title>Спонсоры</title>
+        </info>
+
+        <para> Платиновым спонсором создания «Руководства по языку СУБД Firebird» является
+            Московская Биржа <link xmlns:xlink="http://www.w3.org/1999/xlink"
+                xlink:href="http://www.moex.com">www.moex.com</link>. </para>
+        <para> Московская Биржа — крупнейший в России и Восточной Европе биржевой холдинг,
+            образованный 19 декабря 2011 года в результате слияния биржевых групп ММВБ (основана в
+            1992) и РТС (основана в 1995). Московская Биржа входит в двадцатку ведущих мировых
+            площадок по объему торгов ценными бумагами, суммарной капитализации торгуемых акций и в
+            десятку крупнейших бирж производных финансовых инструментов. </para>
+        <para> Золотым спонсором «Руководства по языку СУБД Firebird» является IBSurgeon (iBase.ru)
+                (<link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://www.ib-aid.com"
+                >www.ib-aid.com</link>, <link xmlns:xlink="http://www.w3.org/1999/xlink"
+                xlink:href="http://www.ibase.ru">www.ibase.ru</link>): техническая поддержка и инструменты
+            разработчика и администратора для СУБД Firebird. </para>
+    </simplesect>
+    <simplesect xml:id="intro-thanks">
+        <info>
+            <title>Благодарности</title>
+        </info>
+
+        <para> Благодарим Влада Хорсуна, Александра Пешкова, Павла Зотова за помощь в создании этого
+            документа. </para>
+    </simplesect>
+    <simplesect xml:id="intro-license">
+        <info>
+            <title>Лицензионные замечания</title>
+        </info>
+
+        <para> Содержание данного Документа распространяется на условиях лицензии «Public
+            Documentation License Version 1.0» (далее «Лицензия»); Вы можете использовать этот
+            Документ, только если согласны с условиями Лицензии. Копии текста Лицензии доступны по
+            адресам <link xmlns:xlink="http://www.w3.org/1999/xlink"
+                xlink:href="http://www.firebirdsql.org/pdfmanual/pdl.pdf"
+                >http://www.firebirdsql.org/pdfmanual/pdl.pdf</link> (PDF) и <link
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                xlink:href="http://www.firebirdsql.org/manual/pdl.html"
+                >http://www.firebirdsql.org/manual/pdl.html</link> (HTML). </para>
+        <para> Оригинальное название документа «Руководство по языку SQL Firebird». </para>
+        <para> Copyright (C) 2015. Все права защищены. Адрес электронной почты для контакта:
+                <email>case@firebirdsql.org</email>
+        </para>
+        <para> Далее представлен оригинальный текст раздела, так как его перевод не имеет
+            равноценной юридической силы. </para>
+        <para> The contents of this Documentation are subject to the Public Documentation License
+            Version 1.0 (the "License"); you may only use this Documentation if you comply with the
+            terms of this License. Copies of the License are available at <link
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                xlink:href="http://www.firebirdsql.org/pdfmanual/pdl.pdf"
+                >http://www.firebirdsql.org/pdfmanual/pdl.pdf</link> (PDF) and <link
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                xlink:href="http://www.firebirdsql.org/manual/pdl.html"
+                >http://www.firebirdsql.org/manual/pdl.html</link> (HTML). </para>
+    </simplesect>
+    <simplesect xml:id="intro-updates">
+        <info>
+            <title>Обновления</title>
+        </info>
+
+        <para> Так как СУБД Firebird постоянно развивается, то изменяется и улучшается его
+            документация. Вы можете получить обновленные версии этого документа и других частей
+            документации по Firebird на русском языке на сайте проекта документации: <link
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                xlink:href="https://www.assembla.com/spaces/firebird-russian-documentation/wiki"
+                >https://www.assembla.com/spaces/firebird-russian-documentation/wiki</link>
+        </para>
+    </simplesect>
+</preface>

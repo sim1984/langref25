@@ -1,0 +1,2111 @@
+<!DOCTYPE chapter>
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="security" xml:lang="ru">
+    <info>
+        <title>Безопасность</title>
+    </info>
+
+    <para>Базы данных, как и данные, хранимые в файлах базы данных, должны быть защищены. Firebird
+        обеспечивает двухуровневую защиту данных — аутентификация пользователя на уровне сервера и
+        привилегии на уровне базы данных. В данной главе рассказывается, каким образом управлять
+        безопасностью вашей базы данных на каждом из уровней.</para>
+
+    <section xml:id="security-auth">
+        <title>Аутентификация пользователя</title>
+
+        <para>Безопасность всей базы данных зависит от проверки подлинности идентификатора
+            пользователя. Информация о пользователях, зарегистрированных для конкретного сервера
+            Firebird, хранится в особой базе данных безопасности (security database) —
+                <filename>security2.fdb</filename>.</para>
+        <para>Имя пользователя может состоять максимум из 31 символа, при этом их регистр не
+            учитывается. Пароль может состоять максимум из 8 символов (если ввести больше, лишние
+            символы игнорируются), регистр — учитывается.</para>
+        <para>Встроенная версия сервера (embedded), не использует аутентификацию. Тем не менее, имя
+            пользователя, и если необходимо роль, должны быть указаны в параметрах подключения,
+            поскольку они используются для контроля доступа к объектам базы данных.</para>
+        <para>Пользователь SYSDBA или пользователь вошедший с ролью RDB$ADMIN, получают
+            неограниченный доступ к базе данных. Если пользователь является владельцем базы данных,
+            то без указания роли RDB$ADMIN он получает неограниченный доступ ко всем объектам
+            принадлежащим этой базе данных.</para>
+
+        <section xml:id="security-auth-special">
+            <title>Специальные учётные записи</title>
+
+            <section xml:id="security-auth-special-sysdba">
+                <info>
+                    <title>SYSDBA</title>
+                    <keywordset>
+                        <keyword>SYSDBA</keyword>
+                    </keywordset>
+                </info>
+
+                <indexterm><primary>SYSDBA</primary></indexterm>
+
+                <para>В Firebird существует специальная учётная запись SYSDBA, которая существует
+                    вне всех ограничений безопасности и имеет полный доступ ко всем базам данных
+                    сервера. По умолчанию пароль SYSDBA — masterkey (точнее masterke, т.к. длина
+                    пароля ограничена 8 символами).</para>
+                <important>
+                    <title>Очень важно!</title>
+                    <para>Пароль по умолчанию masterkey известен всем. Он должен быть изменён сразу
+                        после завершения установки Firebird.</para>
+                </important>
+
+            </section>
+
+            <section xml:id="security-auth-special-posix">
+                <title>Особенности POSIX</title>
+
+                <para>В POSIX системах, включая MacOSX, Firebird будет трактовать пользователя POSIX
+                    точно так же как и пользователя, хранящегося в собственной базе данных
+                    безопасности Firebird, до тех пор, пока сервер видит клиента в качестве
+                    доверенного хоста. Учетные записи пользователя должны существовать как на
+                    клиенте, так и на сервере. Для того чтобы установить доверительные отношения с
+                    хостом клиента, необходимо на сервере занести соответствующую запись в файл
+                        <filename>/etc/hosts.equiv</filename> или
+                        <filename>/etc/gds_hosts.equiv</filename>. В файле
+                        <filename>hosts.equiv</filename> прописываются доверительные отношения на
+                    уровне операционных систем, которые, соответственно, распространяются на все
+                    сервисы (например, rlogin, rsh, rcp). В файле
+                        <filename>gds_hosts.equiv</filename> устанавливаются доверительные отношения
+                    между хостами, только для Firebird. Формат записи идентичен для обоих файлов, и
+                    выглядит следующим образом: <screen>
+        hostname [username]
+    </screen>
+                </para>
+                <section xml:id="security-auth-sysdba-posix">
+                    <title>Пользователь <database class="user">SYSDBA</database> в POSIX</title>
+
+                    <para>В POSIX системах, кроме MacOSX, пользователь <database class="user"
+                            >SYSDBA</database> не имеет пароля по умолчанию. Если полная установка
+                        установка осуществляется с помощью стандартных скриптов, то одноразовый
+                        пароль будет создан и сохранён в текстовом файле в том же каталоге что и
+                            <filename>security2.fdb</filename>, обычно это
+                            <filename>/opt/firebird/</filename>. Файл с паролём имеет имя
+                            <filename>SYSDBA.password</filename>.</para>
+
+                    <note>
+                        <para>При выполнении установки с помощью определённого распространяемого
+                            установщика, расположение файла базы данных безопасности и файла с
+                            паролем может отличаться от стандартного.</para>
+                    </note>
+                </section>
+                <section xml:id="security-auth-root-posix">
+                    <title>Пользователь <emphasis>root</emphasis> в POSIX</title>
+
+                    <para>В POSIX системах пользователь <emphasis>root</emphasis> может выступать в
+                        роли <database class="user">SYSDBA</database>. Firebird в этом случае будет
+                        трактовать имя пользователя <emphasis>root</emphasis> как <database
+                            class="user">SYSDBA</database>, и вы будете иметь доступ ко всем базам
+                        данных сервера.</para>
+                </section>
+            </section>
+            <section xml:id="security-auth-special-windows">
+                <title>Особенности Windows</title>
+
+                <para>В операционных системах семейства Windows NT вы также можете пользоваться
+                    учётными записями ОС. Для этого необходимо включить разрешение на использование
+                    доверительной аутентификации (Trusted Authentication). Для этого необходимо
+                    установить параметр <replaceable>Authentication</replaceable> в файле
+                    конфигурации <filename>firebird.conf</filename> в значение Trusted или
+                    Mixed.</para>
+                <para>Администраторы операционной системы Windows автоматически не получают права
+                    SYSDBA при подключении к базе данных (если, конечно, разрешена доверенная
+                    авторизация). Имеют ли администраторы автоматические права SYSDBA, зависит от
+                    установки значения флага AUTO ADMIN MAPPING.</para>
+            </section>
+            <section xml:id="security-auth-special-dbowner">
+                <title>Владелец базы данных</title>
+
+                <para>Владелец базы данных — это либо текущий пользователь
+                        (<database>CURRENT_USER</database>), который был момент создания, либо
+                    пользователь который был указан в параметрах USER и PASSWORD в операторе CREATE
+                    DATABASE.</para>
+                <para>Владелец базы данных является администратором в ней и имеет полный доступ ко всем объектам этой
+                    базы данных, даже созданных другими пользователями.</para>
+            </section>
+        </section>
+
+        <section xml:id="security-sysroles">
+            <info>
+                <title>Системные роли</title>
+            </info>
+            <section xml:id="security-sysroles-rdbadmin">
+                <info>
+                    <title>RDB$ADMIN</title>
+                    <keywordset>
+                        <keyword>RDB$ADMIN</keyword>
+                    </keywordset>
+                </info>
+                <indexterm><primary>RDB$ADMIN</primary></indexterm>
+                <para>Системная роль RDB$ADMIN, присутствует в каждой базе данных. Предоставление
+                    пользователю роли RDB$ADMIN в базе данных даёт ему права SYSDBA, но только в
+                    текущей базе данных.</para>
+                <para>Привилегии вступают в силу сразу после входа в обычную базу данных с указанием
+                    роли RDB$ADMIN, после чего пользователь получает полный контроль над всеми
+                    объектами базы данных.</para>
+                <para>Предоставление в базе данных безопасности даёт возможность создавать, изменять
+                    и удалять учётные записи пользователей.</para>
+                <para>В обоих случаях пользователь с правами RDB$ADMIN роли может всегда передавать
+                    эту роль другим. Другими словами, <quote>WITH ADMIN OPTION</quote> уже встроен в
+                    эту роль и эту опцию можно не указывать.</para>
+                <section xml:id="security-sysroles-rdbadmin-grantindb">
+                    <info>
+                        <title>Предоставление роли RDB$ADMIN в обычной базе данных</title>
+                    </info>
+                    <para>Для предоставления и удаления роли RDB$ADMIN в обычной базе данных
+                        используются операторы GRANT и REVOKE, как и для назначения и отмены
+                        остальных ролей.</para>
+                    <formalpara>
+                        <title>Синтаксис:</title>
+
+                        <para><programlisting>
+GRANT RDB$ADMIN TO <replaceable>username</replaceable>
+ 
+REVOKE RDB$ADMIN FROM <replaceable>username</replaceable>
+                       </programlisting></para>
+                    </formalpara>
+                    <para>
+                        <table frame="all">
+                            <?dbfo keep-together='auto'?>
+                            <title>Параметры операторов установки и отмены роли RDB$ADMIN</title>
+                            <tgroup cols="2">
+                                <colspec colname="colArgument" colnum="1" colwidth="1*" align="left"/>
+                                <colspec colname="colDesc" colnum="2" colwidth="3*" align="justify"/>
+                                <thead>
+                                    <row valign="middle">
+                                        <entry align="center">Параметр</entry>
+                                        <entry align="center">Описание</entry>
+                                    </row>
+                                </thead>
+                                <tbody>
+                                    <row>
+                                        <entry><replaceable>username</replaceable></entry>
+                                        <entry>
+                                            <para>Имя пользователя, которому назначается роль
+                                                RDB$ADMIN или у которого она отбирается.</para>
+                                        </entry>
+                                    </row>
+                                </tbody>
+                            </tgroup>
+                        </table>
+                    </para>
+
+                    <para>Привилегии на роль RDB$ADMIN могут давать только <link
+                            linkend="security-administrators">администраторы</link>. </para>
+                    <formalpara>
+                        <title>См. также:</title>
+
+                        <para>
+                            <link linkend="security-priv-grant">GRANT</link>, <link
+                                linkend="security-priv-revoke">REVOKE</link>. </para>
+                    </formalpara>
+
+                    <section xml:id="security-sysroles-rdbadmin-useindb">
+                        <title>Использование роли RDB$ADMIN в обычной базе данных</title>
+
+                        <para>Для использования прав роли RDB$ADMIN пользователь просто указывает её
+                            при соединении с базой данных. </para>
+                    </section>
+                </section>
+
+                <section xml:id="security-sysroles-rdbadmin-grantinsecuritydb">
+                    <title>Предоставление роли RDB$ADMIN в базе данных пользователей</title>
+
+                    <para>Так как никто не может соединиться с базой данных пользователей, то
+                        операторы GRANT и REVOKE здесь не могут использоваться. Вместо этого роль
+                        RDB$ADMIN предоставляют и удаляют SQL командами управления пользователями:
+                        CREATE USER и ALTER USER, в которых указываются специальные опции GRANT
+                        ADMIN ROLE и REVOKE ADMIN ROLE. </para>
+                    <formalpara>
+                        <title>Синтаксис (неполный):</title>
+
+
+                        <para><programlisting>
+CREATE USER <replaceable>newuser</replaceable> 
+PASSWORD '<replaceable>password</replaceable>' 
+GRANT ADMIN ROLE
+ 
+ALTER USER <replaceable>existinguser</replaceable> 
+GRANT ADMIN ROLE
+ 
+ALTER USER <replaceable>existinguser</replaceable> 
+REVOKE ADMIN ROLE
+                       </programlisting></para>
+                    </formalpara>
+                    <para>
+                        <table frame="all">
+                            <?dbfo keep-together='auto'?>
+                            <title>Параметры операторов установки и отмены роли RDB$ADMIN</title>
+                            <tgroup cols="2">
+                                <colspec colname="colArgument" colnum="1" colwidth="1*" align="left"/>
+                                <colspec colname="colDesc" colnum="2" colwidth="3*" align="justify"/>
+                                <thead>
+                                    <row valign="middle">
+                                        <entry align="center">Параметр</entry>
+                                        <entry align="center">Описание</entry>
+                                    </row>
+                                </thead>
+                                <tbody>
+                                    <row>
+                                        <entry><replaceable>newuser</replaceable></entry>
+                                        <entry>
+                                            <para>Имя вновь создаваемого пользователя. Максимальная
+                                                длина 31 символ.</para>
+                                        </entry>
+                                    </row>
+                                    <row>
+                                        <entry><replaceable>existinguser</replaceable></entry>
+                                        <entry>
+                                            <para>Имя существующего пользователя.</para>
+                                        </entry>
+                                    </row>
+                                    <row>
+                                        <entry><replaceable>password</replaceable></entry>
+                                        <entry>
+                                            <para>Пароль пользователя. Чувствительно к
+                                                регистру.</para>
+                                        </entry>
+                                    </row>
+                                </tbody>
+                            </tgroup>
+                        </table>
+                    </para>
+
+                    <important>
+                        <para>Пожалуйста, помните, что GRANT ADMIN ROLE и REVOKE ADMIN ROLE это не
+                            операторы GRANT и REVOKE. Это параметры для CREATE USER и ALTER
+                            USER.</para>
+                    </important>
+                    <para>Привилегии на роль RDB$ADMIN могут давать только <link
+                            linkend="security-administrators">администраторы</link>. </para>
+                    <formalpara>
+                        <title>См. также:</title>
+
+                        <para>
+                            <link linkend="security-user-create">CREATE USER</link>, <link
+                                linkend="security-user-alter">ALTER USER</link>. </para>
+                    </formalpara>
+
+                    <section xml:id="security-rdbadmin-grantinsecuritydb-gsec">
+                        <title>Выполнение той же задачи используя утилиту
+                                <application>gsec</application></title>
+
+                        <para>То же самое можно сделать используя утилиту
+                                <application>gsec</application> указав параметр
+                                <parameter>-admin</parameter> для сохранения атрибута
+                                <database>RDB$ADMIN</database> учётной записи пользователя: <blockquote>
+                                <literallayout class="monospaced">
+gsec -add new_user -pw password -admin yes
+gsec -mo existing_user -admin yes
+gsec -mo existing_user -admin no
+            </literallayout>
+                            </blockquote>
+                        </para>
+                        <note>
+                            <para>В зависимости от административного статуса текущего пользователя
+                                для утилиты <application>gsec</application> может потребоваться
+                                больше параметров, таких как <parameter>-user</parameter> и
+                                    <parameter>-pass</parameter>, или
+                                    <parameter>-trusted</parameter>.</para>
+                        </note>
+
+                    </section>
+                    <section xml:id="security-sysroles-rdbadmin-useinsecuritydb">
+                        <title>Использование роли RDB$ADMIN в базе данных пользователей</title>
+
+                        <para>Для управления учётными записями пользователей через SQL пользователь,
+                            имеющий права на роль RDB$ADMIN, должен подключиться к базе данных с
+                            этой ролью. Так как к базе данных пользователей не имеет права
+                            соединяться никто, то пользователь должен подключиться к обычной базе
+                            данных, где он также имеет права на роль RDB$ADMIN. Он определяет роль
+                            при соединении с обычной базой данных и может в ней выполнить любой SQL
+                            запрос. Это не самое элегантное решение, но это единственный способ
+                            управлять пользователями через SQL запросы. </para>
+                        <para>Если нет обычной базы данных, где у пользователя есть права на роль
+                            RDB$ADMIN, то управление учётными записями посредством SQL запросов
+                            недоступно.</para>
+                    </section>
+                    <section xml:id="security-sysroles-rdbadmin-useingsec">
+                        <title>Использование роли RDB$ADMIN в
+                            <application>gsec</application></title>
+
+                        <para>Для управления пользователями через утилиту
+                                <application>gsec</application> роль RDB$ADMIN должна быть указана в
+                            переключателе <parameter>-role</parameter>.</para>
+                    </section>
+                </section>
+                <section xml:id="security-autoadminmapping">
+                    <info>
+                        <title>AUTO ADMIN MAPPING</title>
+                        <keywordset>
+                            <keyword>AUTO ADMIN MAPPING</keyword>
+                        </keywordset>
+                    </info>
+                    <formalpara>
+                        <title>Операционная система:</title>
+
+                        <para>только Windows.</para>
+                    </formalpara>
+                    <para>Администраторы операционной системы Windows автоматически не получают
+                        права SYSDBA при подключении к базе данных (если, конечно, разрешена
+                        доверенная авторизация). Имеют ли администраторы автоматические права SYSDBA
+                        зависит от установки значения флага AUTO ADMIN MAPPING. Это флаг в каждой из
+                        баз данных, который по умолчанию выключен. Если флаг AUTO ADMIN MAPPING
+                        включен, то он действует, когда администратор Windows: <orderedlist
+                            numeration="loweralpha" spacing="compact">
+                            <listitem>
+                                <para>подключается с помощью доверенной аутентификации</para>
+                            </listitem>
+                            <listitem>
+                                <para>не определяет никакой роли при подключении.</para>
+                            </listitem>
+                        </orderedlist></para>
+                    <para>После успешного “auto admin” подключения текущей ролью будет являться
+                        RDB$ADMIN. </para>
+                    <section xml:id="security-autoadminmapping01">
+                        <info>
+                            <title>Включение и выключение AUTO ADMIN MAPPING в обычной базе
+                                данных</title>
+
+                            <keywordset>
+                                <keyword>AUTO ADMIN MAPPING</keyword>
+                            </keywordset>
+                        </info>
+
+                        <indexterm><primary>ALTER ROLE RDB$ADMIN SET AUTO ADMIN
+                            MAPPING</primary></indexterm>
+                        <indexterm><primary>ALTER ROLE RDB$ADMIN DROP AUTO ADMIN
+                            MAPPING</primary></indexterm>
+
+                        <para>Включение и выключение флага AUTO ADMIN MAPPING в обычной базе данных
+                            осуществляется следующим образом:
+                            <programlisting language="sql">
+ALTER ROLE RDB$ADMIN SET AUTO ADMIN MAPPING -- включение
+ 
+ALTER ROLE RDB$ADMIN DROP AUTO ADMIN MAPPING -- выключение                   
+                </programlisting>
+                        </para>
+                        <para>Эти операторы могут быть выполнены пользователями с достаточными
+                            правами, а именно: <itemizedlist spacing="compact">
+                                <listitem>
+                                    <para>владелец базы данных;</para>
+                                </listitem>
+                                <listitem>
+                                    <para>
+                                        <link linkend="security-administrators"
+                                            >администраторы</link>. </para>
+                                </listitem>
+                            </itemizedlist>
+                        </para>
+
+                        <para>В обычных базах данных статус AUTO ADMIN MAPPING проверяется только во
+                            время подключения. Если Администратор имеет роль RDB$ADMIN потому, что
+                            произошло автоматическое отображение во время входа, то он будет
+                            удерживать эту роль на протяжении всей сессии, даже если он или кто-то
+                            другой в это же время выключает автоматическое отображение.</para>
+
+                        <para>Точно также, включение AUTO ADMIN MAPPING не изменит текущую роль в
+                            RDB$ADMIN для Администраторов, которые уже подключились.</para>
+
+                    </section>
+                    <section xml:id="security-autoadminmapping02">
+                        <info>
+                            <title>Включение и выключение AUTO ADMIN MAPPING в базе данных
+                                безопасности</title>
+                        </info>
+
+                        <para>Нет никаких операторов SQL, чтобы включить или выключить флаг AUTO
+                            ADMIN MAPPING в базе данных пользователей. Для этого можно использовать
+                            только утилиту командной строки <application>gsec</application>:
+                            <screen>
+gsec -mapping set
+ 
+gsec -mapping drop                
+            </screen>
+                        </para>
+                        <note>
+                            <para>В зависимости от административного статуса текущего пользователя
+                                для утилиты <application>gsec</application> может потребоваться
+                                больше параметров, таких как <parameter>-user</parameter> и
+                                    <parameter>-pass</parameter>, или
+                                    <parameter>-trusted</parameter>.</para>
+                        </note>
+
+                        <para>Только SYSDBA может включить AUTO ADMIN MAPPING, если он выключен, но любой администратор
+                            может выключить его.</para>
+
+                        <para> При выключении AUTO ADMIN MAPPING пользователь отключает сам
+                            механизм, который предоставлял ему доступ и, таким образом, он не сможет
+                            обратно включить AUTO ADMIN MAPPING. Даже в интерактивном
+                                <application>gsec</application> сеансе новая установка флага сразу
+                            вступает в силу.</para>
+                    </section>
+                </section>
+            </section>
+        </section>
+
+        <section xml:id="security-administrators">
+            <info>
+                <title>Администраторы</title>
+            </info>
+
+            <para>Администратор — это пользователь, которые имеет достаточные права для чтения и
+                записи, создания, изменения и удаления любого объекта в базе данных. В таблице
+                показано, как привилегии <quote>Суперпользователя</quote> включены в различных
+                контекстах безопасности Firebird.</para>
+
+            <para>
+                <table xml:id="security-tbl-administrators" frame="all">
+                    <?dbfo keep-together='auto'?>
+                    <title>Администраторы</title>
+                    <tgroup cols="3">
+                        <colspec colname="colUser" colnum="1" colwidth="1.2*"/>
+                        <colspec colname="colAdmin" colnum="2" colwidth="1.2*"/>
+                        <colspec colname="colComment" colnum="3" colwidth="3*"/>
+                        <spanspec spanname="all" namest="colUser" nameend="colComment"/>
+                        <thead>
+                            <row>
+                                <entry>Пользователь</entry>
+                                <entry>Роль RDB$ADMIN</entry>
+                                <entry>Замечание</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry>SYSDBA</entry>
+                                <entry>Автоматически</entry>
+                                <entry>Существует автоматически на уровне сервера. Имеет полные
+                                    привилегии ко всем объектам во всех базах данных. Может
+                                    создавать. изменять и удалять пользователей, но не имеет прямого
+                                    доступа к базе данных безопасности.</entry>
+                            </row>
+                            <row>
+                                <entry>Пользователь <emphasis>root</emphasis> в POSIX</entry>
+                                <entry>Автоматически</entry>
+                                <entry>Также как SYSDBA.</entry>
+                            </row>
+                            <row>
+                                <entry>Суперпользователь в POSIX</entry>
+                                <entry>Автоматически</entry>
+                                <entry>Также как SYSDBA.</entry>
+                            </row>
+                            <row>
+                                <entry>Владелец базы данных</entry>
+                                <entry>Автоматически</entry>
+                                <entry>Также как SYSDBA, но только в этой базе данных.</entry>
+                            </row>
+                            <row>
+                                <entry>Администраторы Windows</entry>
+                                <entry>Устанавливается в CURRENT_ROLE, если вход успешен</entry>
+                                <entry><para>Также как SYSDBA, если соблюдены следующие условия:<itemizedlist>
+                                            <listitem>
+                                                <para>В файле конфигурации
+                                                  <filename>firebird.conf</filename> параметр
+                                                  <parameter>Authentication</parameter> должен иметь
+                                                  значение <emphasis>mixed</emphasis> или
+                                                  <emphasis>trusted</emphasis>. Для применения
+                                                  изменения требуется перезагрузка сервера.</para>
+                                            </listitem>
+                                            <listitem>
+                                                <para>Во всех базах данных, где требуется полномочия
+                                                  суперпользователя должен быть включен AUTO ADMIN
+                                                  MAPPING.</para>
+                                            </listitem>
+                                            <listitem>
+                                                <para>При входе не указана роль.</para>
+                                            </listitem>
+                                        </itemizedlist></para></entry>
+                            </row>
+                            <row>
+                                <entry>Обычный пользователь</entry>
+                                <entry>Должна быть предварительно выдана и должна быть указана при
+                                    входе</entry>
+                                <entry>Также как SYSDBA, но только в тех базах данных, где эта роль
+                                    предоставлена.</entry>
+                            </row>
+                            <row>
+                                <entry>Пользователь POSIX</entry>
+                                <entry>Должна быть предварительно выдана и должна быть указана при
+                                    входе</entry>
+                                <entry>Также как SYSDBA, но только в тех базах данных, где эта роль
+                                    предоставлена.</entry>
+                            </row>
+                            <row>
+                                <entry>Пользователь Windows</entry>
+                                <entry>Должна быть предварительно выдана и должна быть указана при
+                                    входе</entry>
+                                <entry>Также как SYSDBA, но только в тех базах данных, где эта роль
+                                    предоставлена. Не доступно, если параметр конфигурации
+                                        <parameter>Authentication</parameter> имеет значение
+                                        <emphasis>native</emphasis>.</entry>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table>
+            </para>
+
+        </section>
+
+    </section>
+
+    <section xml:id="security-user">
+        <info>
+            <title>Управление пользователями</title>
+        </info>
+        <para>В данном разделе описываются операторы создания, модификации и удаления учётных
+            записей пользователей Firebird средствами операторов SQL. Такая возможность
+            предоставлена следующим пользователям обладающие полными административными привилегиями
+            в базе данных безопасности. </para>
+        <note>
+            <para>Для Администраторов Windows, включение AUTO ADMIN MAPPING в обычной базе данных
+                безопасности не является достаточным условием для обеспечения возможности управлять
+                другими пользователями. Инструкции по его включению в базе данных безопасности см.
+                    <link linkend="security-autoadminmapping02">Включение AUTO ADMIN MAPPING
+                    в базе данных безопасности</link></para>
+        </note>
+        <para>Непривилегированные пользователи могут использовать только оператор ALTER USER для
+            изменения собственной учётной записи. </para>
+        <section xml:id="security-user-create">
+            <info>
+                <title>CREATE USER</title>
+                <keywordset>
+                    <keyword>CREATE USER</keyword>
+                </keywordset>
+            </info>
+            <indexterm>
+                <primary>CREATE USER</primary>
+            </indexterm>
+            <formalpara>
+                <title>Назначение:</title>
+
+                <para>Создание учётной записи пользователя Firebird.</para>
+            </formalpara>
+
+            <formalpara>
+                <title>Доступно в:</title>
+
+                <para>DSQL.</para>
+            </formalpara>
+            <formalpara>
+                <title>Синтаксис:</title>
+
+                <para>
+                    <programlisting>
+CREATE USER <replaceable>username</replaceable> PASSWORD '<replaceable>password</replaceable>'
+  [FIRSTNAME '<replaceable>firstname</replaceable>']
+  [MIDDLENAME '<replaceable>middlename</replaceable>']
+  [LASTNAME '<replaceable>lastname</replaceable>']
+  [GRANT ADMIN ROLE];
+
+<replaceable>&lt;tag&gt;</replaceable> ::= <replaceable>tagname</replaceable> = '<replaceable>string value</replaceable>'                    
+                </programlisting>
+                </para>
+            </formalpara>
+            <para>
+                <table frame="all">
+                    <?dbfo keep-together='auto'?>
+                    <title>Параметры оператора CREATE USER</title>
+                    <tgroup cols="2">
+                        <colspec colname="colArgument" colnum="1" colwidth="1*" align="left"/>
+                        <colspec colname="colDesc" colnum="2" colwidth="3*" align="justify"/>
+                        <thead>
+                            <row valign="middle">
+                                <entry align="center">Параметр</entry>
+                                <entry align="center">Описание</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry><replaceable>username</replaceable></entry>
+                                <entry>
+                                    <para>Имя пользователя. Максимальная длина 31 символ.</para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry><replaceable>password</replaceable></entry>
+                                <entry>
+                                    <para>Пароль пользователя. Может включать в себя до 31 символов,
+                                        однако только первые 8 имеют значение. Чувствительно к
+                                        регистру.</para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry><replaceable>firstname</replaceable></entry>
+                                <entry>
+                                    <para>Вспомогательная информация: имя пользователя. Максимальная
+                                        длина 32 символа.</para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry><replaceable>middlename</replaceable></entry>
+                                <entry>
+                                    <para>Вспомогательная информация: &quot;второе имя&quot;
+                                        (отчество, &quot;имя отца&quot;) пользователя. Максимальная
+                                        длина 32 символа.</para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry><replaceable>lastname</replaceable></entry>
+                                <entry>
+                                    <para>Вспомогательная информация: фамилия пользователя.
+                                        Максимальная длина 32 символа.</para>
+                                </entry>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table>
+            </para>
+
+            <para>Оператор CREATE USER создаёт учётную запись пользователя Firebird. Пользователь
+                должен отсутствовать в базе данных безопасности Firebird иначе будет выдано
+                соответствующее сообщение об ошибке.</para>
+            <para>Параметр <replaceable>username</replaceable> должен соответствовать правилам для
+                идентификаторов Firebird (см. <link linkend="langstruct-ids"
+                    >Идентификаторы</link>). Имена пользователей всегда нечувствительны к регистру.
+                Указание имени пользователя в двойных кавычках не вызовут ошибку: кавычки будут
+                проигнорированы. Если пробел будет единственным недопустимым символом, то имя
+                пользователя будет усечено до первого пробела. Другие недопустимые символы вызовут
+                исключение.</para>
+            <indexterm>
+                <primary>CREATE USER</primary>
+                <secondary>PASSWORD</secondary>
+            </indexterm>
+            <para>Предложение PASSWORD задаёт пароль пользователя. Пароль более восьми символов
+                допустим, но вызовет предупреждение, лишние символы будут проигнорированы.</para>
+            <indexterm>
+                <primary>CREATE USER</primary>
+                <secondary>FIRSTNAME</secondary>
+            </indexterm>
+            <indexterm>
+                <primary>CREATE USER</primary>
+                <secondary>MIDDLENAME</secondary>
+            </indexterm>
+            <indexterm>
+                <primary>CREATE USER</primary>
+                <secondary>LASTNAME</secondary>
+            </indexterm>
+            <para>Необязательные предложения FIRSTNAME, MIDDLENAME и LASTNAME задают дополнительные
+                атрибуты пользователя, такие как имя пользователя (имя человека), отчество и фамилия
+                соответственно.</para>
+            <indexterm>
+                <primary>CREATE USER</primary>
+                <secondary>GRANT ADMIN ROLE</secondary>
+            </indexterm>
+            <para>Если указана опция GRANT ADMIN ROLE, то новая учётная запись пользователя
+                создаётся с правами роли RDB$ADMIN в базе данных безопасности
+                    (<filename>security2.fdb</filename>). Это позволяет вновь созданному
+                пользователю управлять учётными записями пользователей, но не даёт ему специальных
+                полномочий в обычных базах данных.</para>
+            <para>Для создания учётной записи пользователя текущий пользователь должен обладать
+                    <link linkend="security-administrators">административными
+                    привилегиями</link> в базе данных безопасности. Пользователи являющиеся
+                администраторами только в обычной базе данных не могут создавать новые учётные
+                записи.</para>
+
+            <note>
+                <para>Операторы CREATE/ALTER/DROP USER являются DDL операторами. Не забывайте
+                    подтверждать (COMMIT) вашу работу. В <application>isql</application>, команда
+                    SET AUTO ON позволяет включить автоматическое подтверждение транзакций для DDL
+                    операторов. В сторонних инструментах и пользовательских приложениях это может
+                    быть не так.</para>
+            </note>
+
+            <formalpara>
+                <title>Примеры:</title>
+
+                <para>
+                    <example>
+                        <title>Создание пользователя.</title>
+
+                        <para>
+                            <programlisting language="sql"> 
+CREATE USER bigshot PASSWORD 'buckshot';
+                </programlisting>
+                        </para>
+                    </example>
+                    <example>
+                        <title>Создание пользователя John с дополнительными атрибутами (именем и
+                            фамилией).</title>
+
+                        <para>
+                            <programlisting language="sql"> 
+CREATE USER john PASSWORD 'fYe_3Ksw'
+FIRSTNAME 'John'
+LASTNAME 'Doe';
+                </programlisting>
+                        </para>
+                    </example>
+                    <example>
+                        <title>Создание пользователя с возможностью управления
+                            пользователями.</title>
+
+                        <para>
+                            <programlisting language="sql"> 
+CREATE USER superuser PASSWORD 'kMn8Kjh'
+GRANT ADMIN ROLE;
+                </programlisting>
+                        </para>
+                    </example>
+                </para>
+            </formalpara>
+            <formalpara>
+                <title>См. также:</title>
+
+                <para>
+                    <link linkend="security-user-alter">ALTER USER</link>, <link
+                        linkend="security-user-drop">DROP USER</link>. </para>
+            </formalpara>
+        </section>
+        <section xml:id="security-user-alter">
+            <info>
+                <title>ALTER USER</title>
+                <keywordset>
+                    <keyword>ALTER USER</keyword>
+                </keywordset>
+            </info>
+            <indexterm>
+                <primary>ALTER USER</primary>
+            </indexterm>
+            <formalpara>
+                <title>Назначение:</title>
+
+                <para>Изменение учётной записи пользователя Firebird.</para>
+            </formalpara>
+
+            <formalpara>
+                <title>Доступно в:</title>
+
+                <para>DSQL.</para>
+            </formalpara>
+            <formalpara>
+                <title>Синтаксис:</title>
+
+                <para>
+                    <programlisting>
+ALTER USER <replaceable>username</replaceable>
+{ 
+  [SET]
+  [PASSWORD '<replaceable>password</replaceable>']
+  [FIRSTNAME '<replaceable>firstname</replaceable>']
+  [MIDDLENAME '<replaceable>middlename</replaceable>']
+  [LASTNAME '<replaceable>lastname</replaceable>']
+}
+[{GRANT | REVOKE} ADMIN ROLE];
+                    
+                </programlisting>
+                </para>
+            </formalpara>
+            <para>
+                <table frame="all">
+                    <?dbfo keep-together='auto'?>
+                    <title>Параметры оператора ALTER USER</title>
+                    <tgroup cols="2">
+                        <colspec colname="colArgument" colnum="1" colwidth="1*" align="left"/>
+                        <colspec colname="colDesc" colnum="2" colwidth="3*" align="justify"/>
+                        <thead>
+                            <row valign="middle">
+                                <entry align="center">Параметр</entry>
+                                <entry align="center">Описание</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry><replaceable>username</replaceable></entry>
+                                <entry>
+                                    <para>Имя пользователя. Не может быть изменено.</para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry><replaceable>password</replaceable></entry>
+                                <entry>
+                                    <para>Пароль пользователя. Может включать в себя до 31 символов,
+                                        однако только первые 8 имеют значение. Чувствительно к
+                                        регистру.</para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry><replaceable>firstname</replaceable></entry>
+                                <entry>
+                                    <para>Вспомогательная информация: имя пользователя. Максимальная
+                                        длина 32 символа.</para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry><replaceable>middlename</replaceable></entry>
+                                <entry>
+                                    <para>Вспомогательная информация: &quot;второе имя&quot;
+                                        (отчество, &quot;имя отца&quot;) пользователя. Максимальная
+                                        длина 32 символа.</para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry><replaceable>lastname</replaceable></entry>
+                                <entry>
+                                    <para>Вспомогательная информация: фамилия пользователя.
+                                        Максимальная длина 32 символа.</para>
+                                </entry>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table>
+            </para>
+
+            <para>Оператор ALTER USER изменяет данные учётной записи пользователя. Для модификации
+                чужой учётной записи пользователя текущий пользователь должен обладать <link
+                    linkend="security-administrators">административными привилегиями</link>
+                в базе данных безопасности. Пользователи являющиеся администраторами только в
+                обычной базе данных не могут изменять чужие учётные записи.</para>
+            <para>Свои собственные учётные записи могут изменять любые пользователи, однако это не
+                относится к опциям GRANT/REVOKE ADMIN ROLE для изменения которых, необходимы
+                административные привилегии.</para>
+            <para>Все аргументы за исключением имени пользователя в операторе ALTER USER являются
+                необязательными, но хотя бы один из них должен присутствовать.</para>
+            <indexterm>
+                <primary>ALTER USER</primary>
+                <secondary>PASSWORD</secondary>
+            </indexterm>
+            <para>Необязательное предложение PASSWORD задаёт новый пароль пользователя.</para>
+            <indexterm>
+                <primary>ALTER USER</primary>
+                <secondary>FIRSTNAME</secondary>
+            </indexterm>
+            <indexterm>
+                <primary>ALTER USER</primary>
+                <secondary>MIDDLENAME</secondary>
+            </indexterm>
+            <indexterm>
+                <primary>ALTER USER</primary>
+                <secondary>LASTNAME</secondary>
+            </indexterm>
+            <para>Необязательные предложения FIRSTNAME, MIDDLENAME и LASTNAME позволяют изменить
+                дополнительные атрибуты пользователя, такие как имя пользователя (имя человека),
+                отчество и фамилия соответственно.</para>
+            <indexterm>
+                <primary>ALTER USER</primary>
+                <secondary>GRANT ADMIN ROLE</secondary>
+            </indexterm>
+            <para>Предложение GRANT ADMIN ROLE предоставляет указанному пользователю привилегии роли
+                RDB$ADMIN в базе данных безопасности (<filename>security2.fdb</filename>). Это
+                позволяет указанному пользователю управлять учётными записями пользователей, но не
+                даёт ему специальных полномочий в обычных базах данных.</para>
+            <indexterm>
+                <primary>ALTER USER</primary>
+                <secondary>REVOKE ADMIN ROLE</secondary>
+            </indexterm>
+            <para>Предложение REVOKE ADMIN ROLE отбирает у указанного пользователя привилегии роли
+                RDB$ADMIN в текущей базе данных безопасности. Это запрещает указанному пользователю
+                управлять учётными записями пользователей.</para>
+
+            <note>
+                <para>Не забывайте подтверждать свою работу, если вы работаете в приложении не
+                    поддерживающим автоматическое подтверждение транзакций для DDL
+                    операторов.</para>
+            </note>
+
+            <formalpara>
+                <title>Примеры:</title>
+                <para>
+                    <example>
+                        <title>Изменение пользователя и выдача ему привилегии управления
+                            пользователями.</title>
+
+                        <para>
+                            <programlisting language="sql"> 
+ALTER USER bobby PASSWORD '67-UiT_G8'
+GRANT ADMIN ROLE;
+                </programlisting>
+                        </para>
+                    </example>
+                    <example>
+                        <title>Изменение дополнительных атрибутов своей учётной записи.</title>
+
+                        <para>
+                            <programlisting language="sql"> 
+ALTER CURRENT USER
+FIRSTNAME 'No_Jack'
+LASTNAME 'Kennedy';
+                </programlisting>
+                        </para>
+                    </example>
+                    <example>
+                        <title>Отбор привилегии управления пользователями у пользователя.</title>
+
+                        <para>
+                            <programlisting language="sql"> 
+ALTER USER dumbbell
+REVOKE ADMIN ROLE;
+                </programlisting>
+                        </para>
+                    </example>
+                </para>
+            </formalpara>
+            <formalpara>
+                <title>См. также:</title>
+
+                <para>
+                    <link linkend="security-user-create">CREATE USER</link>, <link
+                        linkend="security-user-drop">DROP USER</link>. </para>
+            </formalpara>
+        </section>
+
+        <section xml:id="security-user-drop">
+            <info>
+                <title>DROP USER</title>
+                <keywordset>
+                    <keyword>DROP USER</keyword>
+                </keywordset>
+            </info>
+            <indexterm>
+                <primary>DROP USER</primary>
+            </indexterm>
+            <formalpara>
+                <title>Назначение:</title>
+
+                <para>Удаление учётной записи пользователя Firebird.</para>
+            </formalpara>
+
+            <formalpara>
+                <title>Доступно в:</title>
+
+                <para>DSQL.</para>
+            </formalpara>
+            <formalpara>
+                <title>Синтаксис:</title>
+
+                <para>
+                    <programlisting>
+DROP USER <replaceable>username</replaceable>;
+                </programlisting>
+                </para>
+            </formalpara>
+            <para>
+                <table frame="all">
+                    <?dbfo keep-together='auto'?>
+                    <title>Параметры оператора DROP USER</title>
+                    <tgroup cols="2">
+                        <colspec colname="colArgument" colnum="1" colwidth="1*" align="left"/>
+                        <colspec colname="colDesc" colnum="2" colwidth="3*" align="justify"/>
+                        <thead>
+                            <row valign="middle">
+                                <entry align="center">Параметр</entry>
+                                <entry align="center">Описание</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry><replaceable>username</replaceable></entry>
+                                <entry>
+                                    <para>Имя пользователя.</para>
+                                </entry>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table>
+            </para>
+
+            <para>Оператор DROP USER удаляет учётную запись пользователя Firebird.</para>
+            <para>Для удаления учётной записи пользователя текущий пользователь должен обладать
+                    <link linkend="security-administrators">административными
+                    привилегиями</link> в базе данных безопасности. Пользователи являющиеся
+                администраторами только в обычной базе данных не могут удалять учётные
+                записи.</para>
+
+            <note>
+                <para>Не забывайте подтверждать свою работу, если вы работаете в приложении не
+                    поддерживающим автоматическое подтверждение транзакций для DDL
+                    операторов.</para>
+            </note>
+
+            <formalpara>
+                <title>Примеры:</title>
+
+                <para>
+                    <example>
+                        <title>Удаление пользователя.</title>
+
+                        <para>
+                            <programlisting language="sql"> 
+DROP USER bobby;
+                </programlisting>
+                        </para>
+                    </example>
+                </para>
+            </formalpara>
+
+            <formalpara>
+                <title>См. также:</title>
+
+                <para>
+                    <link linkend="security-user-create">CREATE USER</link>, <link
+                        linkend="security-user-alter">ALTER USER</link>. </para>
+            </formalpara>
+        </section>
+    </section>
+    
+    <section xml:id="security-roles">
+        <info>
+            <title>Роли</title>
+            <keywordset>
+                <keyword>ROLE</keyword>
+            </keywordset>
+        </info>
+        <indexterm><primary>ROLE</primary></indexterm>
+        <para><emphasis role="bold">Роль</emphasis> (role) — объект базы данных, представляющий
+            набор привилегий. Роли реализуют концепцию управления безопасностью на групповом уровне.
+            Множество привилегий предоставляется роли, а затем роль может быть предоставлена или
+            отозвана у одного или нескольких пользователей.</para>
+        <para>Пользователь, которому предоставлена роль, должен указать её при входе, для того чтобы
+            получить её привилегии. Любые другие привилегии, предоставленные пользователю, не будут
+            затронуты при его входе в систему с указанной ролью. Вход в систему с несколькими ролями
+            не поддерживается.</para>
+        <para>В данном разделе рассматриваются вопросы создания и удаления ролей.</para>
+        <section xml:id="security-role-create">
+            <info>
+                <title>CREATE ROLE</title>
+                <keywordset>
+                    <keyword>CREATE ROLE</keyword>
+                </keywordset>
+            </info>
+            <indexterm><primary>CREATE ROLE</primary></indexterm>
+            <formalpara>
+                <title>Назначение:</title>
+                
+                <para>Создание новой роли.</para>
+            </formalpara>
+            
+            <formalpara>
+                <title>Доступно в:</title>
+                
+                <para>DSQL, ESQL.</para>
+            </formalpara>
+            <formalpara>
+                <title>Синтаксис:</title>
+                
+                <para><programlisting>
+CREATE ROLE <replaceable>rolename</replaceable>;                    
+                </programlisting></para>
+            </formalpara>
+            <para>
+                <table frame="all">
+                    <?dbfo keep-together='auto'?>
+                    <title>Параметры оператора CREATE ROLE</title>
+                    <tgroup cols="2">
+                        <colspec colname="colArgument" colnum="1" colwidth="1*" align="left"/>
+                        <colspec colname="colDesc" colnum="2" colwidth="3*" align="justify"/>
+                        <thead>
+                            <row valign="middle">
+                                <entry align="center">Параметр</entry>
+                                <entry align="center">Описание</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry><replaceable>rolename</replaceable></entry>
+                                <entry>
+                                    <para>Имя роли. Максимальная длина 31 символ.</para>
+                                </entry>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table>
+            </para>
+            
+            <para>Оператор CREATE ROLE создаёт новую роль. Имя роли должно быть уникальным среди
+                имён ролей.</para>
+            <warning>
+                <title>Предупреждение:</title>
+                <para>Желательно также чтобы имя роли было уникальным не только среди имён ролей, но
+                    и среди имён пользователей. Если вы создадите роль с тем же именем существующего
+                    пользователя, то такой пользователь не сможет подключиться к базе данных.
+                </para>
+            </warning>
+            <para>Создать роль может любой пользователь, подключенный к базе данных. Пользователь,
+                создавший роль, становится её владельцем.</para>
+            
+            <formalpara>
+                <title>Примеры:</title>
+                <para>
+                    <example>
+                        <title>Создание роли.</title>
+                        
+                        <para><programlisting language="sql"> 
+CREATE ROLE SELLERS;                 
+                </programlisting>
+                        </para>
+                    </example>
+                </para>
+            </formalpara>
+            <formalpara>
+                <title>См. также:</title>
+                
+                <para>
+                    <link linkend="security-role-drop">DROP ROLE</link>, <link
+                        linkend="security-priv-grant">GRANT</link>, <link
+                            linkend="security-priv-revoke">REVOKE</link>. </para>
+                
+            </formalpara>
+        </section>
+        <section xml:id="security-role-alter">
+            <info>
+                <title>ALTER ROLE</title>
+            </info>
+            
+            <para>Оператору ALTER ROLE нет места в парадигме create-alter-drop как для других
+                объектов базы данных, так как у роли нет атрибутов, которые могут быть изменены.
+                Этот оператор применяется для изменения одного из атрибутов базы данных. В Firebird
+                он используется для включения и отключения возможности администраторам Windows
+                автоматически предоставлять привилегии <link linkend="security-administrators"
+                    >администраторов</link> при входе.</para>
+            
+            <para>Эта возможность существует только для одной роли, а именно системной роли
+                RDB$ADMIN, которая существует в любой базе данных с ODS 11.2 и выше.</para>
+            
+            <para>Подробности см. в <link linkend="security-autoadminmapping">AUTO ADMIN
+                MAPPING</link> главы Безопасность.</para>
+        </section>
+        <section xml:id="security-role-drop">
+            <info>
+                <title>DROP ROLE</title>
+                <keywordset>
+                    <keyword>DROP ROLE</keyword>
+                </keywordset>
+            </info>
+            <indexterm><primary>DROP ROLE</primary></indexterm>
+            <formalpara>
+                <title>Назначение:</title>
+                
+                <para>Удаление существующей роли.</para>
+            </formalpara>
+            
+            <formalpara>
+                <title>Доступно в:</title>
+                
+                <para>DSQL, ESQL.</para>
+            </formalpara>
+            <formalpara>
+                <title>Синтаксис:</title>
+                
+                <para><programlisting>
+DROP ROLE <replaceable>rolename</replaceable>;                    
+                </programlisting></para>
+            </formalpara>
+            <para>
+                <table frame="all">
+                    <?dbfo keep-together='auto'?>
+                    <title>Параметры оператора DROP ROLE</title>
+                    <tgroup cols="2">
+                        <colspec colname="colArgument" colnum="1" colwidth="1*" align="left"/>
+                        <colspec colname="colDesc" colnum="2" colwidth="3*" align="justify"/>
+                        <thead>
+                            <row valign="middle">
+                                <entry align="center">Параметр</entry>
+                                <entry align="center">Описание</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry><replaceable>rolename</replaceable></entry>
+                                <entry>
+                                    <para>Имя роли.</para>
+                                </entry>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table>
+            </para>
+            
+            <para>Оператор DROP ROLE удаляет существующую роль. При удалении роли все привилегии,
+                предоставленные этой роли, отменяются.</para>
+            <para>Роль может быть удалена владельцем или <link linkend="security-administrators"
+                >администраторами</link>. </para>
+            
+            <formalpara>
+                <title>Примеры:</title>
+                <para>
+                    <example>
+                        <title>Удаление роли.</title>
+                        
+                        <para><programlisting language="sql"> 
+DROP ROLE SELLERS;      
+                </programlisting>
+                        </para>
+                    </example>
+                </para>
+            </formalpara>
+            <formalpara>
+                <title>См. также:</title>
+                
+                <para>
+                    <link linkend="security-role-create">CREATE ROLE</link>, <link
+                        linkend="security-priv-grant">GRANT</link>, <link
+                            linkend="security-priv-revoke">REVOKE</link>. </para>
+                
+            </formalpara>
+        </section>
+    </section>    
+
+    <section xml:id="security-priv">
+        <info>
+            <title>SQL привилегии</title>
+        </info>
+
+        <para>Вторым уровень модели обеспечения безопасности Firebird являются SQL привилегии. После
+            успешного входа в систему (первый уровень), авторизованный пользователь получает доступ
+            к серверу и ко всем базам данных этого сервера, но это не означает, что он имеет доступ
+            к любым объектам в любой базе данных. После создания объекта, только пользователь
+            создавший объект (его владелец) и администраторы имеют доступ к нему. Пользователю
+            необходимы привилегии на каждый объект, к которому он должен получить доступ. Как
+            правило, привилегии должны быть предоставлены явно пользователю владельцем объекта или
+                <link linkend="security-administrators">администратором</link> базы
+            данных.</para>
+        <para>Привилегия включает тип DML доступа (SELECT, INSERT, UPDATE, DELETE, EXECUTE и
+            REFERENCES), имя объекта базы данных для которого предоставляется привилегия (таблица,
+            представление, процедура или роль) и имя объекта которому предоставляется привилегия
+            (пользователь, процедура, триггер, роль). Существуют различные способы для
+            предоставления нескольких типов доступа на один объект базы данных сразу нескольким
+            пользователям в одном операторе GRANT. Привилегии могут быть отозваны с помощью
+            оператора REVOKE.</para>
+        <para>Все привилегии по доступу к объектам базы данных хранятся в самой базе, и не могут
+            быть применены к любой другой базе данных. </para>
+
+        <section xml:id="security-owner">
+            <title>Владелец объекта базы данных</title>
+
+            <para>Пользователь, создавший объект базы данных, становится его владельцем. Только владелец объекта и
+                пользователи с правами <link linkend="security-administrators">администратора</link> в базе
+                данных могут изменить или удалить объект базы данных. Владелец базы данных, то есть пользователь,
+                который создал её, имеет все права на объекты, которые были созданы другими пользователями.</para>
+
+            <note>
+                <para>К сожалению, вопросы создания новых объектов базы данных не контролируются в
+                    настоящий момент (Firebird 2.5). Любой авторизованный пользователь, имеющий
+                    доступ к базе данных, может создать любой допустимый объект базы данных. </para>
+                <para>Кроме того, не все объекты базы данных ассоциированы с владельцем, что делает
+                    их уязвимыми (позволяет изменять и удалять любым пользователям). Это относится к
+                    доменам, функциям (UDF), BLOB фильтрам, генераторам (последовательностям) и
+                    исключениям. </para>
+            </note>
+
+            <para>Администраторы или владелец объекта могут выдавать привилегии другим
+                пользователям, в том числе и привилегии на право выдачи привилегий другим
+                пользователям. Собственно сам процесс раздачи и отзыва привилегий на уровне SQL
+                реализуется двумя операторами: <link linkend="security-priv-grant"
+                    >GRANT</link>, <link linkend="security-priv-revoke"
+                >REVOKE</link>.</para>
+
+        </section>
+        <section xml:id="security-priv-grant">
+            <info>
+                <title>GRANT</title>
+                <keywordset>
+                    <keyword>GRANT</keyword>
+                </keywordset>
+            </info>
+            <indexterm><primary>GRANT</primary></indexterm>
+
+            <formalpara>
+                <title>Назначение:</title>
+
+                <para>Предоставление привилегий или назначение ролей.</para>
+            </formalpara>
+            <formalpara>
+                <title>Доступно в:</title>
+
+                <para>DSQL.</para>
+            </formalpara>
+            <formalpara>
+                <title>Синтаксис:</title>
+
+                <para><programlisting>                    
+GRANT {
+  <replaceable>&lt;privileges&gt;</replaceable> ON [TABLE] {<replaceable>tablename</replaceable> | <replaceable>viewname</replaceable>} |
+  EXECUTE ON PROCEDURE <replaceable>procname</replaceable> }
+TO <replaceable>&lt;grantee_list&gt;</replaceable> [WITH GRANT OPTION]
+[{GRANTED BY | AS} [USER] <replaceable>grantor</replaceable>]
+
+GRANT <replaceable>&lt;role_granted&gt;</replaceable> 
+TO <replaceable>&lt;role_grantee_list&gt;</replaceable> [WITH ADMIN OPTION] 
+[{GRANTED BY | AS} [USER] <replaceable>grantor</replaceable>]
+
+<replaceable>&lt;privileges&gt;</replaceable> ::= ALL [PRIVILEGES] | <replaceable>&lt;privilege_list&gt;</replaceable>
+
+<replaceable>&lt;privilege_list&gt;</replaceable> ::= { <replaceable>&lt;privilege&gt;</replaceable> [, <replaceable>&lt;privilege&gt;</replaceable> [, ...] ] }
+
+<replaceable>&lt;privilege_list&gt;</replaceable> ::=      
+  SELECT | 
+  DELETE | 
+  INSERT | 
+  UPDATE [(<replaceable>col</replaceable> [,<replaceable>col</replaceable> [, ...] ])] | 
+  REFERENCES (<replaceable>col</replaceable> [,<replaceable>col</replaceable> [, ...] ])   
+  
+<replaceable>&lt;grantee_list&gt;</replaceable> ::= { <replaceable>&lt;grantee&gt;</replaceable> [, <replaceable>&lt;grantee&gt;</replaceable> [, ...] ] }
+
+<replaceable>&lt;grantee&gt;</replaceable> ::=
+  [USER] <replaceable>username</replaceable> | 
+  [ROLE] <replaceable>rolename</replaceable> | 
+  GROUP <replaceable>Unix_group</replaceable> | 
+  PROCEDURE <replaceable>procname</replaceable> | 
+  TRIGGER <replaceable>trigname</replaceable> | 
+  VIEW <replaceable>viewname</replaceable> |
+  PUBLIC 
+
+<replaceable>&lt;role_granted&gt;</replaceable> ::= <replaceable>rolename</replaceable> [, <replaceable>rolename</replaceable> ...]
+
+<replaceable>&lt;role_grantee_list&gt;</replaceable> ::= <replaceable>&lt;role_grantee&gt;</replaceable> [, <replaceable>&lt;role_grantee&gt;</replaceable> [, ...] ]  
+
+<replaceable>&lt;role_grantee&gt;</replaceable> ::= { [USER] <replaceable>username</replaceable> | PUBLIC }            
+           </programlisting></para>
+            </formalpara>
+            <para>
+                <table frame="all">
+                    <?dbfo keep-together='auto'?>
+                    <title>Параметры оператора GRANT</title>
+                    <tgroup cols="2">
+                        <colspec colname="colArgument" colnum="1" colwidth="1*" align="left"/>
+                        <colspec colname="colDesc" colnum="2" colwidth="3*" align="justify"/>
+                        <thead>
+                            <row valign="middle">
+                                <entry align="center">Параметр</entry>
+                                <entry align="center">Описание</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry><replaceable>tablename</replaceable></entry>
+                                <entry>
+                                    <para>Имя таблицы, к которой должно быть применена привилегия.
+                                    </para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry><replaceable>viewname</replaceable></entry>
+                                <entry>
+                                    <para>Имя представления, к которому должно быть применена
+                                        привилегия или которому будут выданы привилегии. </para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry><replaceable>procname</replaceable></entry>
+                                <entry>
+                                    <para>Имя хранимой процедуры, для которой должна быть выдана
+                                        привилегия EXECUTE или которой будут даны привилегии.
+                                    </para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry><replaceable>trigname</replaceable></entry>
+                                <entry>
+                                    <para>Имя триггера, которому будут даны привилегии.</para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry><replaceable>col</replaceable></entry>
+                                <entry>
+                                    <para>Столбец таблицы, к которому должна быть применена
+                                        привилегия. </para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry><replaceable>username</replaceable></entry>
+                                <entry>
+                                    <para>Имя пользователя, для которого выдаются привилегии или
+                                        которому назначается роль. </para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry><replaceable>rolename</replaceable></entry>
+                                <entry>
+                                    <para>Имя роли.</para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry><replaceable>Unix_group</replaceable></entry>
+                                <entry>
+                                    <para>Имя группы пользователей в операционных системах семейства
+                                        UNIX. </para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry><replaceable>grantor</replaceable></entry>
+                                <entry>
+                                    <para>Пользователь от имени, которого предоставляются
+                                        привилегии. </para>
+                                </entry>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table>
+            </para>
+
+            <para>Оператор GRANT предоставляет одну или несколько привилегий для объектов базы
+                данных пользователям, ролям, хранимым процедурам, функциям, пакетам, триггерам и
+                представлениям. </para>
+            <para>Авторизованный пользователь не имеет никаких привилегий до тех пор, пока какие
+                либо права не будут предоставлены ему явно. При создании объекта только его
+                создатель и <link linkend="security-administrators">администраторы</link>
+                имеют привилегии на него и могут назначать привилегии другим пользователям, ролям
+                или объектам.</para>
+            <para>Для различных типов объектов метаданных существует различный набор привилегий. Эти
+                привилегии будут описаны далее отдельно для каждого из типов объектов
+                метаданных.</para>
+            <section xml:id="security-priv-grant-to">
+                <title>Предложение TO</title>
+                <para>В предложении TO указывается список пользователей, ролей и объектов базы
+                    данных (процедур, триггеров и представлений) для которых будут выданы
+                    перечисленные привилегии. Это предложение является обязательным.</para>
+                <para>Необязательные предложения USER и ROLE позволяют уточнить, кому именно
+                    выдаётся привилегия. Если ключевое слово USER или ROLE не указано, то сервер
+                    проверяет, существует ли роль с данным именем, если таковой не существует, то
+                    привилегии назначаются пользователю.</para>
+
+                <section xml:id="security-priv-role">
+                    <title>Упаковка привилегий в роли</title>
+
+                    <para>Роль представляет собой объект <quote>контейнер</quote>, который может
+                        быть использован для упаковки набора привилегий. Для использования роли
+                        необходимо предоставить её каждому пользователю, которому требуются эти
+                        привилегии. Роль также может быть предоставлена списку пользователей.</para>
+                    <para>Роль должна существовать перед предоставлением ей привилегий. Синтаксис
+                        создания роли можно посмотреть в разделе <link
+                            linkend="security-role-create">CREATE ROLE</link> главы DDL. Роль
+                        сохраняет предоставленные ей привилегии. При необходимости эти привилегии
+                        можно забрать у неё. При удалении роли (см. <link
+                            linkend="security-role-drop">DROP ROLE</link>) все пользователи
+                        теряют привилегии получаемые через эту роль. Любые привилегии, которые были
+                        предоставлены затронутому пользователю дополнительно через различные
+                        операторы GRANT, сохраняются.</para>
+                    <para>Пользователь, которому предоставляется роль, должен указать эту роль
+                        вместе со своими учётными данными при входе в систему, для того чтобы
+                        получить её привилегии. Любые другие привилегии, предоставленные
+                        пользователю, не будут затронуты при входе в систему с указанием
+                        роли.</para>
+                    <para>Одному пользователю может быть предоставлено более одной роли, но вход в
+                        систему с множеством ролей не поддерживается.</para>
+                    <para>Роль может быть предоставлена только пользователю.</para>
+
+                    <important>
+                        <title>Важные замечания:</title>
+
+                        <para>
+                            <itemizedlist spacing="compact">
+                                <listitem>
+                                    <para>При выполнении оператора GRANT существование пользователя
+                                        грантополучателя не проверяется в базе данных. Это не
+                                        является ошибкой: SQL привилегии осуществляют контроль
+                                        доступа для всех аутентифицированных пользователей, как
+                                        обычных, так и доверенных. Доверенные пользователи
+                                        операционной системы не могут быть сохранены в базе данных
+                                        безопасности.</para>
+                                </listitem>
+                                <listitem>
+                                    <para>Если привилегия выдаётся объекту базы данных, то
+                                        необходимо обязательно указывать тип объекта между ключевым
+                                        словом TO и именем объекта.</para>
+                                </listitem>
+                                <listitem>
+                                    <para>Несмотря на то, что ключевые слова USER и ROLE не
+                                        обязательные, желательно использовать их, чтобы избежать
+                                        двусмысленности.</para>
+                                </listitem>
+                            </itemizedlist>
+                        </para>
+                    </important>
+
+                </section>
+
+            </section>
+            <section xml:id="security-priv-grant-public_user">
+                <title>Пользователь PUBLIC</title>
+                <para>В SQL существует специальный пользователь PUBLIC, представляющий всех
+                    пользователей. Если какая-то операция разрешена пользователю PUBLIC, значит,
+                    любой аутентифицированный пользователь может выполнить эту операцию над
+                    указанным объектом.</para>
+                <important>
+                    <para>Если привилегии назначены пользователю PUBLIC, то и отозваны они должны
+                        быть у пользователя PUBLIC.</para>
+                </important>
+            </section>
+            <section xml:id="security-priv-grant-grant_option">
+                <title>WITH GRANT OPTION</title>
+                <indexterm>
+                    <primary>GRANT</primary>
+                    <secondary>WITH GRANT OPTION</secondary>
+                </indexterm>
+                <para>Необязательное предложение WITH GRANT OPTION позволяет пользователям,
+                    указанным в списке пользователей, передавать другим пользователям привилегии
+                    указанные в списке привилегий.</para>
+            </section>
+            <section xml:id="security-priv-grant-granted_by">
+                <title>GRANTED BY</title>
+                <indexterm>
+                    <primary>GRANT</primary>
+                    <secondary>GRANTED BY</secondary>
+                </indexterm>
+                <para>При предоставлении прав в базе данных в качестве лица, предоставившего эти
+                    права, обычно записывается текущий пользователь. Используя предложение GRANTED
+                    BY можно предоставлять права от имени другого пользователя. </para>
+                <para>При использовании оператора REVOKE после GRANTED BY права будут удалены только
+                    в том случае, если они были зарегистрированы от удаляющего пользователя. </para>
+
+                <section xml:id="security-priv-grant-granted_by-as">
+                    <title>Альтернативный синтаксис с использование AS
+                            <replaceable>username</replaceable></title>
+
+                    <para>Для облегчения миграции из некоторых других реляционных СУБД нестандартное
+                        предложение AS поддерживается как синоним оператора GRANTED BY.</para>
+                    <para>Предложения GRANTED BY и AS могут использовать только владелец базы данных
+                        и <link linkend="security-administrators">администраторы</link>.
+                        Даже владелец объекта не может использовать их, если он не имеет
+                        административных привилегий.</para>
+                </section>
+            </section>
+
+            <section xml:id="security-priv-grant-table">
+                <info>
+                    <title>Привилегии для таблиц и представлений</title>
+                    <keywordset>
+                        <keyword>GRANT SELECT</keyword>
+                        <keyword>GRANT INSERT</keyword>
+                        <keyword>GRANT UPDATE</keyword>
+                        <keyword>GRANT DELETE</keyword>
+                        <keyword>GRANT REFERENCES</keyword>
+                        <keyword>GRANT ALL</keyword>
+                    </keywordset>
+                </info>
+                <indexterm>
+                    <primary>GRANT</primary>
+                    <secondary>SELECT</secondary>
+                </indexterm>
+                <indexterm>
+                    <primary>GRANT</primary>
+                    <secondary>INSERT</secondary>
+                </indexterm>
+                <indexterm>
+                    <primary>GRANT</primary>
+                    <secondary>UPDATE</secondary>
+                </indexterm>
+                <indexterm>
+                    <primary>GRANT</primary>
+                    <secondary>DELETE</secondary>
+                </indexterm>
+                <indexterm>
+                    <primary>GRANT</primary>
+                    <secondary>REFERENCES</secondary>
+                </indexterm>
+                <indexterm>
+                    <primary>GRANT</primary>
+                    <secondary>ALL</secondary>
+                </indexterm>
+                <para>Для таблиц и представлений в отличие от других объектов метаданных возможно
+                    использовании сразу нескольких привилегий.</para>
+                <para>
+                    <variablelist>
+                        <title>Список привилегий для таблиц</title>
+                        <varlistentry>
+                            <term>SELECT</term>
+                            <listitem>
+                                <para>Разрешает выборку данных из таблицы или представления. </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term>INSERT</term>
+                            <listitem>
+                                <para>Разрешает добавлять записи в таблицу или представление.
+                                </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term>UPDATE</term>
+                            <listitem>
+                                <para>Разрешает изменять записи в таблице или представлении. Можно
+                                    указать ограничения, чтобы можно было изменять только указанные
+                                    столбцы. </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term>DELETE</term>
+                            <listitem>
+                                <para>Разрешает удалять записи из таблицы или представления. </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term>REFERENCES</term>
+                            <listitem>
+                                <para>Разрешает ссылаться на указанные столбцы внешним ключом.
+                                    Необходимо указать для столбцов, на которых построен первичный
+                                    ключ таблицы, если на неё есть ссылка внешним ключом другой
+                                    таблицы. </para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term>ALL</term>
+                            <listitem>
+                                <para>Объединяет привилегии SELECT, INSERT, UPDATE, DELETE и
+                                    REFERENCES. </para>
+                            </listitem>
+                        </varlistentry>
+                    </variablelist>
+                </para>
+
+                <formalpara>
+                    <title>Примеры:</title>
+
+                    <para>
+                        <example>
+                            <title>Назначение привилегий для таблиц</title>
+                            <para>
+                                <programlisting language="sql">
+-- Привилегии SELECT, INSERT пользователю ALEX                            
+GRANT SELECT, INSERT ON TABLE SALES 
+TO USER ALEX;
+
+-- Привилегия SELECT ролям MANAGER, ENGINEER и пользователю IVAN
+GRANT SELECT ON TABLE CUSTOMER 
+TO ROLE MANAGER, ROLE ENGINEER, USER IVAN;
+
+-- Все привилегии для роли ADMINISTRATOR 
+-- с возможностью передачи своих полномочий
+GRANT ALL ON TABLE CUSTOMER 
+TO ROLE ADMINISTRATOR WITH GRANT OPTION;
+
+-- Привилегии SELECT и REFRENCE для столбца NAME для всех пользователей
+GRANT SELECT, REFERENCES (NAME) ON TABLE COUNTRY 
+TO PUBLIC;
+
+-- Выдача привилегии SELECT для пользователя IVAN от имени пользователя ALEX 
+GRANT SELECT ON TABLE EMPLOYEE 
+TO USER IVAN GRANTED BY ALEX;
+
+-- Привилегия UPDATE для столбцов FIRST_NAME, LAST_NAME
+GRANT UPDATE (FIRST_NAME, LAST_NAME) ON TABLE EMPLOYEE 
+TO USER IVAN;
+
+-- Привилегия INSERT для хранимой процедуры ADD_EMP_PROJ
+GRANT INSERT ON EMPLOYEE_PROJECT 
+TO PROCEDURE ADD_EMP_PROJ;
+                </programlisting>
+                            </para>
+                        </example>
+                    </para>
+                </formalpara>
+            </section>
+            <section xml:id="security-priv-grant-execute">
+                <info>
+                    <title>Привилегия EXECUTE</title>
+                    <keywordset>
+                        <keyword>GRANT EXECUTE</keyword>
+                    </keywordset>
+                </info>
+                <indexterm>
+                    <primary>GRANT</primary>
+                    <secondary>EXECUTE</secondary>
+                </indexterm>
+                <para>Привилегия EXECUTE (выполнение) применима к хранимым процедурам.</para>
+                <para>Для хранимых процедур привилегия EXECUTE позволяет не только выполнять
+                    хранимые процедуры, но и делать выборку данных из селективных процедур (с
+                    помощью оператора SELECT).</para>
+
+                <formalpara>
+                    <title>Примеры:</title>
+
+                    <para>
+                        <example>
+                            <title>Назначение привилегии EXECUTE</title>
+                            <para>
+                                <programlisting language="sql">
+-- Привилегия EXECUTE для хранимой процедуры                             
+GRANT EXECUTE ON PROCEDURE ADD_EMP_PROJ 
+TO ROLE MANAGER;
+                </programlisting>
+                            </para>
+                        </example>
+                    </para>
+                </formalpara>
+            </section>
+            <section xml:id="security-priv-grant-role">
+                <info>
+                    <title>Назначение ролей</title>
+                </info>
+                <para>Оператор GRANT может быть использован для назначения ролей для группы
+                    перечисленных пользователей. В этом случае после предложения GRANT следует
+                    список ролей, которые будут назначены списку пользователей, указанному после
+                    предложения TO. </para>
+
+                <section xml:id="security-priv-grant-role-withadminoption">
+                    <title>WITH ADMIN OPTION</title>
+
+                    <indexterm>
+                        <primary>GRANT</primary>
+                        <secondary>WITH ADMIN OPTION</secondary>
+                    </indexterm>
+                    <para>Необязательное предложение WITH ADMIN OPTION позволяет пользователям,
+                        указанным в списке пользователей, назначать роли из списка ролей, указанных
+                        в списке ролей, другим пользователям. </para>
+
+                    <formalpara>
+                        <title>Примеры:</title>
+
+                        <para>
+                            <example>
+                                <title>Назначение ролей для пользователей</title>
+                                <para>
+                                    <programlisting language="sql">
+-- Назначение ролей DIRECTOR и MANAGER пользователю IVAN                            
+GRANT DIRECTOR, MANAGER TO USER IVAN;
+
+-- Назначение роли ADMIN пользователю ALEX 
+-- с возможностью назначить эту другим пользователям
+GRANT MANAGER TO USER ALEX WITH ADMIN OPTION;
+                </programlisting>
+                                </para>
+                            </example>
+                        </para>
+                    </formalpara>
+
+                    <formalpara>
+                        <title>См. также:</title>
+
+                        <para>
+                            <link linkend="security-priv-revoke">REVOKE</link>. </para>
+                    </formalpara>
+                </section>
+            </section>
+        </section>
+        <section xml:id="security-priv-revoke">
+            <info>
+                <title>REVOKE</title>
+                <keywordset>
+                    <keyword>REVOKE</keyword>
+                </keywordset>
+            </info>
+            <indexterm><primary>REVOKE</primary></indexterm>
+            <formalpara>
+                <title>Назначение:</title>
+
+                <para>Отмена привилегий или отбор ролей.</para>
+            </formalpara>
+
+            <formalpara>
+                <title>Доступно в:</title>
+
+                <para>DSQL.</para>
+            </formalpara>
+            <formalpara>
+                <title>Синтаксис:</title>
+
+                <para><programlisting>                    
+REVOKE [GRANT OPTION FOR] {
+  <replaceable>&lt;privileges&gt;</replaceable> ON [TABLE] {<replaceable>tablename</replaceable> | <replaceable>viewname</replaceable>} | 
+  EXECUTE ON PROCEDURE <replaceable>procname</replaceable> } 
+FROM <replaceable>&lt;grantee_list&gt;</replaceable>
+[{GRANTED BY | AS} [USER] <replaceable>grantor</replaceable>]
+                     
+REVOKE [ADMIN OPTION FOR] <replaceable>&lt;role_granted&gt;</replaceable> 
+FROM {PUBLIC | <replaceable>&lt;role_grantee_list&gt;</replaceable> } 
+[{GRANTED BY | AS} [USER] <replaceable>grantor</replaceable>]
+                    
+REVOKE ALL ON ALL FROM <replaceable>&lt;grantee_list&gt;</replaceable>
+
+{<replaceable>&lt;object_list&gt;</replaceable> | PUBLIC | <replaceable>&lt;user_list&gt;</replaceable> }
+
+<replaceable>&lt;privileges&gt;</replaceable> ::= { ALL [PRIVILEGES] | <replaceable>&lt;privileges_list&gt;</replaceable> } 
+   
+<replaceable>&lt;privilege_list&gt;</replaceable> ::= { <replaceable>&lt;privilege&gt;</replaceable> [, <replaceable>&lt;privilege&gt;</replaceable> [, ... ] ] }
+
+<replaceable>&lt;privilege&gt;</replaceable> ::=     
+  SELECT | 
+  DELETE | 
+  INSERT | 
+  UPDATE [(<replaceable>col</replaceable> [,<replaceable>col</replaceable> ...])] | 
+  REFERENCES [(<replaceable>col</replaceable> [,<replaceable>col</replaceable> ...])]       
+
+<replaceable>&lt;grantee_list&gt;</replaceable> ::= { <replaceable>&lt;grantee&gt;</replaceable> [, <replaceable>&lt;grantee&gt;</replaceable> [, ... ] ] }    
+ 
+<replaceable>&lt;grantee&gt;</replaceable> ::= { 
+    [USER] <replaceable>username</replaceable> 
+  | [ROLE] <replaceable>rolename</replaceable> 
+  | GROUP <replaceable>Unix_group</replaceable> 
+  | PROCEDURE <replaceable>procname</replaceable>
+  | TRIGGER <replaceable>trigname</replaceable>
+  | VIEW <replaceable>viewname</replaceable>
+  | PUBLIC 
+
+<replaceable>&lt;role_granted&gt;</replaceable> ::= <replaceable>rolename</replaceable> [, <replaceable>rolename</replaceable> ...]
+
+<replaceable>&lt;role_grantee_list&gt;</replaceable> ::= <replaceable>&lt;role_grantee&gt;</replaceable> [, <replaceable>&lt;role_grantee&gt;</replaceable> [, ...] ]   
+
+<replaceable>&lt;role_grantee&gt;</replaceable> ::= { [USER] <replaceable>username</replaceable> | PUBLIC }            
+           </programlisting></para>
+            </formalpara>
+            <para>
+                <table frame="all">
+                    <?dbfo keep-together='auto'?>
+                    <title>Параметры оператора REVOKE</title>
+                    <tgroup cols="2">
+                        <colspec colname="colArgument" colnum="1" colwidth="1*" align="left"/>
+                        <colspec colname="colDesc" colnum="2" colwidth="3*" align="justify"/>
+                        <thead>
+                            <row valign="middle">
+                                <entry align="center">Параметр</entry>
+                                <entry align="center">Описание</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry><replaceable>tablename</replaceable></entry>
+                                <entry>
+                                    <para>Имя таблицы, у которой должна быть отозвана привилегия.
+                                    </para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry><replaceable>viewname</replaceable></entry>
+                                <entry>
+                                    <para>Имя представления для которого должна быть отозваны
+                                        привилегии или у которого будет отозваны привилегии. </para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry><replaceable>procname</replaceable></entry>
+                                <entry>
+                                    <para>Имя хранимой процедуры, для которой должна быть отозвана
+                                        привилегия EXECUTE или у которой должны быть отозваны
+                                        привилегии. </para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry><replaceable>trigname</replaceable></entry>
+                                <entry>
+                                    <para>Имя триггера.</para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry><replaceable>col</replaceable></entry>
+                                <entry>
+                                    <para>Столбец таблицы, у которого должна быть отозвана
+                                        привилегия. </para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry><replaceable>username</replaceable></entry>
+                                <entry>
+                                    <para>Имя пользователя, для которого отзываются привилегии или
+                                        роль. </para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry><replaceable>rolename</replaceable></entry>
+                                <entry>
+                                    <para>Имя роли.</para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry><replaceable>Unix_group</replaceable></entry>
+                                <entry>
+                                    <para>Имя группы пользователей в операционных системах семейства
+                                        UNIX. </para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry><replaceable>grantor</replaceable></entry>
+                                <entry>
+                                    <para>Пользователь от имени, которого отзываются привилегии.
+                                    </para>
+                                </entry>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table>
+            </para>
+
+            <para>Оператор REVOKE отменяет привилегии у пользователей, ролей, хранимых процедур,
+                триггеров и представлений выданные оператором GRANT. Подробное описание различных
+                типов привилегий см. в <link linkend="security-priv-grant">GRANT</link>. </para>
+            <para>Только пользователь, который назначил привилегию, может удалить её.</para>
+
+            <section xml:id="security-priv-revoke-from_clause">
+                <title>Предложение FROM</title>
+                <para>В предложении FROM указывается список пользователей, ролей и объектов базы
+                    данных (процедур, триггеров и представлений) у которых будут отняты
+                    перечисленные привилегии. Необязательные предложения USER и ROLE позволяют
+                    уточнить, у кого именно выдаётся привилегия. Если ключевое слово USER или ROLE
+                    не указано, то сервер проверяет, существует ли роль с данным именем, если
+                    таковой не существует, то привилегии отбираются у пользователя.</para>
+                <tip>
+                    <title>Рекомендация</title>
+                    <para><itemizedlist spacing="compact">
+                            <listitem>
+                                <para>Несмотря на то, что ключевые слова USER и ROLE не
+                                    обязательные, желательно использовать их, чтобы избежать
+                                    неоднозначности.</para>
+                            </listitem>
+                            <listitem>
+                                <para>Существование пользователя, у которого отбираются права, не
+                                    проверяются при выполнении оператора REVOKE.</para>
+                            </listitem>
+                            <listitem>
+                                <para>Если привилегия отбирается у объекта базы данных, то
+                                    необходимо обязательно указывать тип объекта.</para>
+                            </listitem>
+                        </itemizedlist>
+                    </para>
+                </tip>
+
+                <important>
+                    <para>Если привилегии были назначены специальному пользователю PUBLIC, то
+                        отменять привилегии необходимо для пользователя PUBLIC. Специальный
+                        пользователь PUBLIC используется, когда необходимо предоставить привилегии
+                        сразу всем пользователям. Однако не следует рассматривать PUBLIC как группу
+                        пользователей.</para>
+                </important>
+            </section>
+            <section xml:id="security-priv-revoke-grant_option">
+                <title>GRANT OPTION FOR</title>
+                <indexterm>
+                    <primary>REVOKE</primary>
+                    <secondary>GRANT OPTION FOR</secondary>
+                </indexterm>
+                <para>Необязательное предложение GRANT OPTION FOR отменяет для соответствующего
+                    пользователя или роли право предоставления другим пользователям или ролям
+                    привилегии к таблицам, представлениям, триггерам, хранимым процедурам.</para>
+            </section>
+            <section xml:id="security-priv-revoke-roles">
+                <title>Отмена назначенных ролей</title>
+                <para>Другое назначение оператора REVOKE в отмене назначенных группе пользователей
+                    ролей оператором GRANT. В этом случае после предложения REVOKE следует список
+                    ролей, которые будут отозваны у списка пользователей, указанных после
+                    предложения FROM. </para>
+                <indexterm>
+                    <primary>REVOKE</primary>
+                    <secondary>ADMIN OPTION FOR</secondary>
+                </indexterm>
+                <para>Необязательное предложение ADMIN OPTION FOR отменяет ранее предоставленную
+                    административную опцию (право на передачу предоставленной пользователю роли
+                    другим) из грантополучателей, не отменяя прав на роль.</para>
+                <para>В одном операторе могут быть обработаны несколько ролей и/или
+                    грантополучателей.</para>
+            </section>
+            <section xml:id="security-priv-revoke-granted_by">
+                <title>GRANTED BY</title>
+                <indexterm>
+                    <primary>REVOKE</primary>
+                    <secondary>GRANTED BY</secondary>
+                </indexterm>
+                <para>При предоставлении прав в базе данных в качестве лица, предоставившего эти
+                    права, обычно записывается текущий пользователь. Используя предложение GRANTED
+                    BY в операторе GRANT можно предоставлять права от имени другого пользователя.
+                    Чтобы отменить привилегии, назначенные таким образом, необходимо чтобы
+                    пользователь обладал полными административными привилегиями и грантодатель
+                    указан в предложении GRANTED BY оператора REVOKE.</para>
+                <note>
+                    <para>Для облегчения миграции из некоторых других реляционных СУБД нестандартное
+                        предложение AS поддерживается как синоним оператора GRANTED BY. </para>
+                </note>
+            </section>
+            <section xml:id="security-priv-revoke-all_on_all">
+                <title>REVOKE ALL ON ALL</title>
+                <indexterm>
+                    <primary>REVOKE</primary>
+                    <secondary>ALL ON ALL</secondary>
+                </indexterm>
+                <para>Если вошел в систему в качестве <link
+                        linkend="security-administrators">администратора</link> базе данных,
+                    то оператор
+                    <programlisting>
+REVOKE ALL ON ALL FROM <replaceable>&lt;grantee_list&gt;</replaceable>
+                </programlisting>
+                    отменяет все привилегии (включая роли) на всех объектах от одного или более
+                    пользователей и/или ролей. Это быстрый способ <quote>очистить</quote> (отобрать)
+                    права, когда пользователю должен быть заблокирован доступ к базе данных.</para>
+                <para>Если текущий пользователь не вошел в систему в качестве администратора, то
+                    будут отменены только те привилегии, которые были предоставлены этого от этого
+                    пользователя.</para>
+                <para>Оператор REVOKE ALL ON ALL не может быть использован для отмены привилегий,
+                    которые были предоставлены хранимым процедурам, триггерам или
+                    представлениям.</para>
+                <note>
+                    <para>Предложение GRANTED BY не поддерживается.</para>
+                </note>
+                <formalpara>
+                    <title>Примеры:</title>
+
+                    <para>
+                        <example>
+                            <title>Отзыв привилегий на таблицу</title>
+                            <para>
+                                <programlisting language="sql">
+-- отзыв привилегий SELECT, INSERT у таблицы                        
+REVOKE SELECT, INSERT ON TABLE SALES FROM USER ALEX
+
+-- отзыв привилегии SELECT у ролей MANAGER и ENGINEER и пользователя IVAN
+REVOKE SELECT ON TABLE CUSTOMER 
+FROM ROLE MANAGER, ROLE ENGINEER, USER IVAN;
+
+-- отмена возможности передавать любую из привилегии на таблицу
+-- другим пользователям или ролям у роли ADMINISTRATOR
+REVOKE GRANT OPTION FOR ALL ON TABLE CUSTOMER 
+FROM ROLE ADMINISTRATOR;
+
+-- отзыв привилегий SELECT и REFERENCES у пользователя PUBLIC
+REVOKE SELECT, REFERENCES (NAME) ON TABLE COUNTRY 
+FROM PUBLIC;
+
+-- отзыв привилегии SELECT у пользователя IVAN,
+-- которая была выдана пользователем ALEX
+REVOKE SELECT ON TABLE EMPLOYEE 
+FROM USER IVAN GRANTED BY ALEX;
+
+-- отзыв привилегии UPDATE для столбцов FIRST_NAME, LAST_NAME 
+REVOKE UPDATE (FIRST_NAME, LAST_NAME) ON TABLE EMPLOYEE 
+FROM USER IVAN;
+
+-- отзыв привилегии INSERT у хранимой процедуры ADD_EMP_PROJ
+REVOKE INSERT ON EMPLOYEE_PROJECT 
+FROM PROCEDURE ADD_EMP_PROJ;
+                </programlisting>
+                            </para>
+                        </example>
+                        <example>
+                            <title>Отзыв привилегии EXECUTE</title>
+                            <para>
+                                <programlisting language="sql">
+-- отзыв привилегии EXECUTE для процедуры                        
+REVOKE EXECUTE ON PROCEDURE ADD_EMP_PROJ 
+FROM USER IVAN;       
+                </programlisting>
+                            </para>
+                        </example>
+                        <example>
+                            <title>Отзыв ролей</title>
+                            <para>
+                                <programlisting language="sql">
+-- Отзыв ролей DIRECTOR, MANAGER у пользователя IVAN                        
+REVOKE DIRECTOR, MANAGER FROM USER IVAN;
+
+-- Отзыв роли MANAGER и права назначать её другим пользователям
+REVOKE ADMIN OPTION FOR MANAGER FROM USER ALEX;
+                </programlisting>
+                            </para>
+                        </example>
+                        <example>
+                            <title>Отзыв всех привилегий и ролей у пользователя</title>
+                            <para>
+                                <programlisting language="sql">
+REVOKE ALL ON ALL FROM IVAN;
+                </programlisting>
+                                После выполнения этой команды у пользователя IVAN нет вообще никаких
+                                прав. </para>
+                        </example>
+                    </para>
+                </formalpara>
+
+                <formalpara>
+                    <title>См. также:</title>
+
+                    <para>
+                        <link linkend="security-priv-grant">GRANT</link>. </para>
+                </formalpara>
+            </section>
+        </section>
+    </section>
+</chapter>
