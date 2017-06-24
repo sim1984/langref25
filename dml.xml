@@ -163,7 +163,7 @@ FROM ...
                 набор данным указанным числом записей. </para>
             <para>Выражение SKIP <replaceable>&lt;n&gt;</replaceable> пропускает указанное число
                 записей перед выдачей результирующего набора данных.</para>
-            <para>Когда эти выражения используются совместно, например FIRST
+            <para>Когда эти выражения используются совместно, например, FIRST
                     <replaceable>m</replaceable> SKIP <replaceable>n</replaceable>, то в результате
                     <replaceable>n</replaceable> записей будет пропущено и, из оставшихся,
                     <replaceable>m</replaceable> записей будет возвращено в результирующем наборе
@@ -195,7 +195,7 @@ FROM ...
                         </listitem>
                         <listitem>
                             <para>Любой аргумент FIRST или SKIP, который не является целым числом
-                                или параметром SQL должен был заключён в круглые скобки. Это,
+                                или параметром SQL, должен был заключён в круглые скобки. Это,
                                 означает, что в случае использования вложенной команды SELECT в
                                 качестве параметра для FIRST или SKIP, он должен быть вложен в две
                                 пары скобок.</para>
@@ -2143,7 +2143,7 @@ GROUP BY <replaceable>&lt;grouping-item&gt;</replaceable> [, <replaceable>&lt;gr
                 быть так же включён в GROUP BY список. Вы можете это сделать тремя способами:
                     <orderedlist spacing="compact">
                     <listitem>
-                        <para>Копировать выражение дословно из списка выбора, например "class" или
+                        <para>Копировать выражение дословно из списка выбора, например, "class" или
                             "'D:' || upper(doccode)";</para>
                     </listitem>
                     <listitem>
@@ -4276,7 +4276,7 @@ SELECT n FROM r
 
                 <para>В СУБД Firebird, вплоть до этой версии, необходимо знать об особенности
                     реализации, которая проявляется в запросах в стиле, который применяется для
-                    создания дубликатов строк в той же таблице. Например запрос
+                    создания дубликатов строк в той же таблице. Например, запрос
                     <programlisting language="sql">
 INSERT INTO T
 SELECT * FROM T                        
@@ -4619,7 +4619,7 @@ WHERE EXISTS(
                     реализации, которая проявляется в запросах на обновление записей, когда в
                     условии WHERE используется IN <replaceable>&lt;select-expr&gt;</replaceable> и
                         <replaceable>&lt;select-expr&gt;</replaceable> имеет вид SELECT FIRST
-                        <replaceable>n</replaceable> или SELECT ... ROWS. Например запрос
+                        <replaceable>n</replaceable> или SELECT ... ROWS. Например, запрос
                     <programlisting language="sql">
 UPDATE T
 SET ...

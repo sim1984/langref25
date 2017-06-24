@@ -516,8 +516,8 @@ END
                     </informaltable>
                 </para>
                 <para>Помимо базовых форм с единственной фазой и событием Firebird поддерживает
-                    также формы с одной фазой и множеством событий, например BEFORE INSERT OR UPDATE
-                    OR DELETE или AFTER UPDATE OR DELETE или любая другая комбинация на ваш
+                    также формы с одной фазой и множеством событий, например, BEFORE INSERT OR
+                    UPDATE OR DELETE или AFTER UPDATE OR DELETE или любая другая комбинация на ваш
                     выбор.</para>
                 <note>
                     <para>Триггеры с несколькими фазами, такие как BEFORE OR AFTER ... не
