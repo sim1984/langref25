@@ -386,7 +386,7 @@ INSERT INTO MYBIGINTS VALUES (
         <para>
             <table xml:id="table-store-fixed">
                 <?dbfo keep-together='auto'?>
-                <title>Способ физического хранения вещественных чисел</title>
+                <title>Способ физического хранения чисел с фиксированной точкой</title>
 
                 <tgroup cols="4">
                     <colspec colname="colScale" colwidth="2*" align="left"/>
