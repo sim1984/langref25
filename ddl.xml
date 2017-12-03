@@ -2029,7 +2029,7 @@ CREATE [GLOBAL TEMPORARY] TABLE <replaceable>tablename</replaceable>
                                 </entry>
                             </row>
                             <row>
-                                <entry><replaceable>datatype</replaceable></entry>
+                                <entry><replaceable>&lt;datatype&gt;</replaceable></entry>
                                 <entry>
                                     <para>Тип данных SQL. </para>
                                 </entry>
@@ -2041,13 +2041,13 @@ CREATE [GLOBAL TEMPORARY] TABLE <replaceable>tablename</replaceable>
                                 </entry>
                             </row>
                             <row>
-                                <entry><replaceable>col_constraint</replaceable></entry>
+                                <entry><replaceable>&lt;col_constraint&gt;</replaceable></entry>
                                 <entry>
                                     <para>Ограничение столбца. </para>
                                 </entry>
                             </row>
                             <row>
-                                <entry><replaceable>tconstraint</replaceable></entry>
+                                <entry><replaceable>&lt;tconstraint&gt;</replaceable></entry>
                                 <entry>
                                     <para>Ограничение таблицы. </para>
                                 </entry>
@@ -2072,6 +2072,15 @@ CREATE [GLOBAL TEMPORARY] TABLE <replaceable>tablename</replaceable>
                                 </entry>
                             </row>
                             <row>
+                                <entry><replaceable>&lt;using_index&gt;</replaceable></entry>
+                                <entry>
+                                    <para>Позвляет задать имя автоматически создаваемого индекса для
+                                        ограничения, и опционально определить, какой это будет
+                                        индекс — по возрастанию (по умолчанию) или по
+                                        убыванию.</para>
+                                </entry>
+                            </row>
+                            <row>
                                 <entry><replaceable>literal</replaceable></entry>
                                 <entry>
                                     <para>Литерал. </para>
@@ -2085,7 +2094,7 @@ CREATE [GLOBAL TEMPORARY] TABLE <replaceable>tablename</replaceable>
                                 </entry>
                             </row>
                             <row>
-                                <entry><replaceable>check_condition</replaceable></entry>
+                                <entry><replaceable>&lt;check_condition&gt;</replaceable></entry>
                                 <entry>
                                     <para>Условие проверки ограничения. Выполняется, если
                                         оценивается как TRUE или NULL/UNKNOWN.</para>
@@ -2101,7 +2110,7 @@ CREATE [GLOBAL TEMPORARY] TABLE <replaceable>tablename</replaceable>
                                 </entry>
                             </row>
                             <row>
-                                <entry><replaceable>array_dim</replaceable></entry>
+                                <entry><replaceable>&lt;array_dim&gt;</replaceable></entry>
                                 <entry>
                                     <para>Размерность массива. </para>
                                 </entry>
@@ -2170,28 +2179,28 @@ CREATE [GLOBAL TEMPORARY] TABLE <replaceable>tablename</replaceable>
                                 </entry>
                             </row>
                             <row>
-                                <entry><replaceable>select_one</replaceable></entry>
+                                <entry><replaceable>&lt;select_one&gt;</replaceable></entry>
                                 <entry>
                                     <para>Оператор SELECT выбирающий один столбец и возвращающий
                                         только одну строку. </para>
                                 </entry>
                             </row>
                             <row>
-                                <entry><replaceable>select_list</replaceable></entry>
+                                <entry><replaceable>&lt;select_list&gt;</replaceable></entry>
                                 <entry>
                                     <para>Оператор SELECT выбирающий один столбец и возвращающий
                                         ноль и более строк.</para>
                                 </entry>
                             </row>
                             <row>
-                                <entry><replaceable>select_expr</replaceable></entry>
+                                <entry><replaceable>&lt;select_expr&gt;</replaceable></entry>
                                 <entry>
                                     <para>Оператор SELECT выбирающий несколько столбцов и
                                         возвращающий ноль и более строк.</para>
                                 </entry>
                             </row>
                             <row>
-                                <entry><replaceable>experssion</replaceable></entry>
+                                <entry><replaceable>&lt;experssion&gt;</replaceable></entry>
                                 <entry>
                                     <para>Выражение. </para>
                                 </entry>
@@ -3141,7 +3150,7 @@ ALTER TABLE <replaceable>tablename</replaceable>
                                 </entry>
                             </row>
                             <row>
-                                <entry><replaceable>operation</replaceable></entry>
+                                <entry><replaceable>&lt;operation&gt;</replaceable></entry>
                                 <entry>
                                     <para>Одна из допустимых операций по изменению структуры
                                         таблицы.</para>
@@ -3169,7 +3178,7 @@ ALTER TABLE <replaceable>tablename</replaceable>
                                 </entry>
                             </row>
                             <row>
-                                <entry><replaceable>datatype</replaceable></entry>
+                                <entry><replaceable>&lt;datatype&gt;</replaceable></entry>
                                 <entry>
                                     <para>Тип данных SQL. </para>
                                 </entry>
@@ -3181,13 +3190,13 @@ ALTER TABLE <replaceable>tablename</replaceable>
                                 </entry>
                             </row>
                             <row>
-                                <entry><replaceable>col_constraint</replaceable></entry>
+                                <entry><replaceable>&lt;col_constraint&gt;</replaceable></entry>
                                 <entry>
                                     <para>Ограничение столбца. </para>
                                 </entry>
                             </row>
                             <row>
-                                <entry><replaceable>tconstraint</replaceable></entry>
+                                <entry><replaceable>&lt;tconstraint&gt;</replaceable></entry>
                                 <entry>
                                     <para>Ограничение таблицы. </para>
                                 </entry>
@@ -3212,6 +3221,12 @@ ALTER TABLE <replaceable>tablename</replaceable>
                                 </entry>
                             </row>
                             <row>
+                                <entry><replaceable>&lt;using_index&gt;</replaceable></entry>
+                                <entry>Позвляет задать имя автоматически создаваемого индекса для
+                                    ограничения, и опционально определить, какой это будет индекс —
+                                    по возрастанию (по умолчанию) или по убыванию.</entry>
+                            </row>
+                            <row>
                                 <entry><replaceable>literal</replaceable></entry>
                                 <entry>
                                     <para>Литерал. </para>
@@ -3225,7 +3240,7 @@ ALTER TABLE <replaceable>tablename</replaceable>
                                 </entry>
                             </row>
                             <row>
-                                <entry><replaceable>check_condition</replaceable></entry>
+                                <entry><replaceable>&lt;check_condition&gt;</replaceable></entry>
                                 <entry>
                                     <para>Условие проверки ограничения. Выполняется, если
                                         оценивается как TRUE или NULL/UNKNOWN.</para>
@@ -3241,7 +3256,7 @@ ALTER TABLE <replaceable>tablename</replaceable>
                                 </entry>
                             </row>
                             <row>
-                                <entry><replaceable>array_dim</replaceable></entry>
+                                <entry><replaceable>&lt;array_dim&gt;</replaceable></entry>
                                 <entry>
                                     <para>Размерность массива. </para>
                                 </entry>
@@ -3310,28 +3325,28 @@ ALTER TABLE <replaceable>tablename</replaceable>
                                 </entry>
                             </row>
                             <row>
-                                <entry><replaceable>select_one</replaceable></entry>
+                                <entry><replaceable>&lt;select_one&gt;</replaceable></entry>
                                 <entry>
                                     <para>Оператор SELECT выбирающий один столбец и возвращающий
                                         только одну строку. </para>
                                 </entry>
                             </row>
                             <row>
-                                <entry><replaceable>select_list</replaceable></entry>
+                                <entry><replaceable>&lt;select_list&gt;</replaceable></entry>
                                 <entry>
                                     <para>Оператор SELECT выбирающий один столбец и возвращающий
                                         ноль и более строк.</para>
                                 </entry>
                             </row>
                             <row>
-                                <entry><replaceable>select_expr</replaceable></entry>
+                                <entry><replaceable>&lt;select_expr&gt;</replaceable></entry>
                                 <entry>
                                     <para>Оператор SELECT выбирающий несколько столбцов и
                                         возвращающий ноль и более строк.</para>
                                 </entry>
                             </row>
                             <row>
-                                <entry><replaceable>experssion</replaceable></entry>
+                                <entry><replaceable>&lt;experssion&gt;</replaceable></entry>
                                 <entry>
                                     <para>Выражение. </para>
                                 </entry>
