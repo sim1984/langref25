@@ -988,7 +988,7 @@ FROM (SELECT
                     WITH, которая определяет одно или более общих табличных выражений (каждое из
                     которых может иметь список алиасов полей). Основной запрос, который следует за
                     преамбулой, может обращаться к CTE так, как будто обычные таблицы. CTE доступны
-                    только в рамках основного запроса. </para>
+                    любой части запроса ниже точки своего объявления. </para>
                 <para>Подробно CTE описываются в разделе <link linkend="dml-select-cte">Общие
                         табличные выражения CTE (WITH ... AS ... SELECT)</link>, а здесь приведены
                     лишь некоторые примеры использования.</para>
@@ -1684,7 +1684,7 @@ PLAN JOIN (A INDEX (RDB$1), B INDEX (RDB$2))
                                 <command>COALESCE(a.x, b.x)</command>. Этот хитрый трюк применяется
                             для устранения неоднозначности имён столбцов, но он же мешает применению
                             индекса. </para>
-                    </tip>						
+                    </tip>
                 </section>
             </section>
             <section xml:id="dml-select-joins-natural">
@@ -2794,7 +2794,7 @@ WHERE EXISTS(
              PLAN (HORSE INDEX (FK_HORSE_COLOR)))
 PLAN(COLOR NATURAL) 
                 </programlisting>
-                </para>					
+                </para>
             </simplesect>
         </section>
         <section xml:id="dml-select-union">
@@ -3885,7 +3885,10 @@ WHERE EXISTS (SELECT *
                             подзапросы;</para>
                     </listitem>
                     <listitem>
-                        <para>Если CTE объявлен, то он должен быть обязательно использован;</para>
+                        <para>До Firebird 2.5.8 если CTE объявлен, то он должен быть обязательно
+                            использован, в противном случае возникает ошибка "CTE
+                                <replaceable>&lt;cte&gt;</replaceable> is not used in query".
+                            Начиная с Firebird 2.5.8 вместо ошибки выдаётся предупреждение;</para>
                     </listitem>
                     <listitem>
                         <para>CTE могут быть использованы и в PSQL (FOR WITH ... SELECT ... INTO
@@ -4192,20 +4195,20 @@ INSERT INTO <replaceable>target</replaceable>    
                 том же порядке и совместимые по типу. Если список столбцов отсутствует, то значения
                 должны быть указаны для каждого столбца таблицы или представления (исключая
                 вычисляемые столбцы).</para>
-				
+
             <note>
                 <para><link linkend="common-expr-string-constants-introducer">Вводный
                         синтаксис</link> даёт возможность определить набор символов для значений
                     строковых констант (литералов). Вводный синтаксис работаёт только с литералами
                     строк: он не может быть применён к строковым переменным, параметрам, ссылкам на
                     столбцы или значения, выражениям.</para>
-            </note>				
-				
-                <formalpara>
-                    <title>Примеры:</title>
-                    <para>
-                        <informalexample>
-                            <para><programlisting language="sql">
+            </note>
+
+            <formalpara>
+                <title>Примеры:</title>
+                <para>
+                    <informalexample>
+                        <para><programlisting language="sql">
 INSERT INTO cars (make, model, byyear)
 VALUES ('Ford', 'T', 1908);
 
@@ -4216,9 +4219,9 @@ VALUES ('Ford', 'T', 1908, 'USA', 850);
 INSERT INTO People
 VALUES (_ISO8859_1 'Hans-Jörg Schäfer');             
             </programlisting></para>
-                        </informalexample>
-                    </para>
-                </formalpara>
+                    </informalexample>
+                </para>
+            </formalpara>
         </section>
         <section xml:id="dml-insert-select">
             <info>
@@ -4683,7 +4686,7 @@ PLAN (C NATURAL)
                     </informalexample>
                 </para>
             </formalpara>
-        </section>		
+        </section>
         <section xml:id="dml-update-orderby">
             <title>ORDER BY и ROWS</title>
             <para>Предложения ORDER BY и ROWS имеют смысл только вместе. Однако их можно
