@@ -181,12 +181,40 @@
             <title>Обновления</title>
         </info>
 
-        <para> Так как СУБД Firebird постоянно развивается, то изменяется и улучшается его
-            документация. Вы можете получить обновленные версии этого документа и других частей
-            документации по Firebird на русском языке на сайте проекта документации: <link
-                xmlns:xlink="http://www.w3.org/1999/xlink"
-                xlink:href="https://www.assembla.com/spaces/firebird-russian-documentation/wiki"
-                >https://www.assembla.com/spaces/firebird-russian-documentation/wiki</link>
+        <para>Так как СУБД Firebird постоянно развивается, то изменяется и улучшается его
+            документация. Вы можете получить самые свежие версии этого документа по адресам:
+            <itemizedlist spacing="compact">
+                <listitem>
+                    <para>PDF — <link xmlns:xlink="http://www.w3.org/1999/xlink"
+                        xlink:href="https://github.com/sim1984/langref25/releases/download/langref25/langref25.pdf"
+                        >https://github.com/sim1984/langref25/releases/download/langref25/langref25.pdf</link></para>
+                </listitem>
+                <listitem>
+                    <para>одностраничный HTML — <link xmlns:xlink="http://www.w3.org/1999/xlink"
+                        xlink:href="https://github.com/sim1984/langref25/releases/download/langref25/langref25-html.zip"
+                        >https://github.com/sim1984/langref25/releases/download/langref25/langref25-html.zip</link></para>
+                </listitem>
+                <listitem>
+                    <para>многостраничный HTML — <link xmlns:xlink="http://www.w3.org/1999/xlink"
+                        xlink:href="https://github.com/sim1984/langref25/releases/download/langref25/langref25-html-chunks.zip"
+                        >https://github.com/sim1984/langref25/releases/download/langref25/langref25-html-chunks.zip</link></para>
+                </listitem>
+            </itemizedlist>
+        </para>
+        <para>Исходный код проекта находится по адресу <link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            xlink:href="https://github.com/sim1984/langref30"
+            >https://github.com/sim1984/langref25</link>.</para>
+        
+        <para>На официальном сайте firebirdsql.org документ доступен по адресу <link
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            xlink:href="https://www.firebirdsql.org/file/documentation/reference_manuals/Firebird_Language_Reference_RUS.pdf"
+            >https://www.firebirdsql.org/file/documentation/reference_manuals/Firebird_Language_Reference_RUS.pdf</link>
+        </para>
+        
+        <para>Кроме того, данный документ выложен в различных форматах на сайте ibase.ru <link
+            xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://www.ibase.ru/develop/"
+            >http://www.ibase.ru/develop/</link>
         </para>
     </simplesect>
 </preface>
