@@ -156,7 +156,7 @@
     </xsl:if>
   </xsl:template>
 
-
+<!--
   <xsl:template match="figure|table|example|equation|procedure" mode="toc">
     <xsl:param name="toc-context" select="."/>
   
@@ -176,7 +176,7 @@
       </a>
     </xsl:element>
   </xsl:template>
-
+-->
 
 </xsl:stylesheet>
 
