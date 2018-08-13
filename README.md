@@ -99,3 +99,15 @@ Language Reference for Firebird 2.5
     <https://github.com/sim1984/langref25/releases/download/langref25/langref25-html-chunks.zip>
 
  
+
+Английские версии (1.001 от 22 января 2018)
+-------------------------------------------
+
+-   PDF —
+    <https://github.com/sim1984/langref25/releases/download/langref25/langref25_en.pdf>
+
+-   одностраничный HTML —
+    <https://github.com/sim1984/langref25/releases/download/langref25/langref25-en-html.zip>
+
+-   многостраничный HTML —
+    <https://github.com/sim1984/langref25/releases/download/langref25/langref25-en-html-chunks.zip>

@@ -1,20 +1,11 @@
-<?xml version='1.0'?>
+<?xml version="1.0" encoding="UTF-8"?>
+
 <xsl:stylesheet exclude-result-prefixes="d"
-                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:d="http://docbook.org/ns/docbook"
-version='1.0'>
+                version='1.0'>
 
-<!-- ********************************************************************
-     $Id: titlepage.xsl 9360 2012-05-12 23:39:14Z bobstayton $
-     ********************************************************************
-
-     This file is part of the XSL DocBook Stylesheet distribution.
-     See ../README or http://docbook.sf.net/release/xsl/current/ for
-     copyright and other information.
-
-     ******************************************************************** -->
-
-<!-- ==================================================================== -->
+  <!-- ==================================================================== -->
 
 <xsl:attribute-set name="book.titlepage.recto.style"/>
 <xsl:attribute-set name="book.titlepage.verso.style"/>

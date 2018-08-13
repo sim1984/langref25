@@ -421,6 +421,8 @@ xmlns:exsl="http://exslt.org/common" version="1.0" exclude-result-prefixes="exsl
     </xsl:when>
   </xsl:choose>
 
+  <xsl:apply-templates mode="book.titlepage.recto.auto.mode" select="d:bookinfo/d:edition"/>
+  <xsl:apply-templates mode="book.titlepage.recto.auto.mode" select="d:info/d:edition"/> 
   <xsl:apply-templates mode="book.titlepage.recto.auto.mode" select="d:bookinfo/d:corpauthor"/>
   <xsl:apply-templates mode="book.titlepage.recto.auto.mode" select="d:info/d:corpauthor"/>
   <xsl:apply-templates mode="book.titlepage.recto.auto.mode" select="d:bookinfo/d:authorgroup"/>
@@ -430,9 +432,7 @@ xmlns:exsl="http://exslt.org/common" version="1.0" exclude-result-prefixes="exsl
   <xsl:apply-templates mode="book.titlepage.recto.auto.mode" select="d:bookinfo/d:othercredit"/>
   <xsl:apply-templates mode="book.titlepage.recto.auto.mode" select="d:info/d:othercredit"/>
   <xsl:apply-templates mode="book.titlepage.recto.auto.mode" select="d:bookinfo/d:releaseinfo"/>
-  <xsl:apply-templates mode="book.titlepage.recto.auto.mode" select="d:info/d:releaseinfo"/>
-  <xsl:apply-templates mode="book.titlepage.recto.auto.mode" select="d:bookinfo/d:edition"/>
-  <xsl:apply-templates mode="book.titlepage.recto.auto.mode" select="d:info/d:edition"/>  
+  <xsl:apply-templates mode="book.titlepage.recto.auto.mode" select="d:info/d:releaseinfo"/> 
   <xsl:apply-templates mode="book.titlepage.recto.auto.mode" select="d:bookinfo/d:copyright"/>
   <xsl:apply-templates mode="book.titlepage.recto.auto.mode" select="d:info/d:copyright"/>
   <xsl:apply-templates mode="book.titlepage.recto.auto.mode" select="d:bookinfo/d:legalnotice"/>
