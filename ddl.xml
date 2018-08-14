@@ -3774,7 +3774,7 @@ ALTER TABLE <replaceable>tablename</replaceable>
       разделяется запятой.</para>
 
       <section xml:id="ddl-table-alter-versinc">
-        <title>ALTER TABLE</title>
+        <title>Счётчик форматов</title>
 
         <para>Некоторые изменения структуры таблицы увеличивают счётчик
         форматов, закреплённый за каждой таблицей. Количество форматов для
