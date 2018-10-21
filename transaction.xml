@@ -1,6 +1,5 @@
 <!DOCTYPE chapter>
-<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="transaction"
-    xml:lang="ru">
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="transaction" xml:lang="ru">
     <info>
         <title>Управление транзакциями</title>
     </info>
@@ -14,25 +13,24 @@
             клиентскими приложениями для старта, управления, подтверждения или отмены транзакций, но
             достаточное для всех задач над базой данных: <itemizedlist>
                 <listitem>
-                    <para><link linkend="transaction-set_transaction">SET TRANSACTION</link>
-                        — задание параметров транзакции и её старт;</para>
+                    <para><link linkend="transaction-set_transaction">SET TRANSACTION</link> —
+                        задание параметров транзакции и её старт;</para>
                 </listitem>
                 <listitem>
-                    <para><link linkend="transaction-commit">COMMIT</link> — завершение
-                        транзакции и сохранение изменений;</para>
+                    <para><link linkend="transaction-commit">COMMIT</link> — завершение транзакции и
+                        сохранение изменений;</para>
                 </listitem>
                 <listitem>
-                    <para><link linkend="transaction-rollback">ROLLBACK</link> — отмена
-                        изменений произошедший в рамках транзакции;</para>
+                    <para><link linkend="transaction-rollback">ROLLBACK</link> — отмена изменений
+                        произошедший в рамках транзакции;</para>
                 </listitem>
                 <listitem>
-                    <para><link linkend="transaction-savepoint">SAVEPOINT</link> — установка
-                        точки сохранения для частичного отката изменений, если это
-                        необходимо;</para>
+                    <para><link linkend="transaction-savepoint">SAVEPOINT</link> — установка точки
+                        сохранения для частичного отката изменений, если это необходимо;</para>
                 </listitem>
                 <listitem>
-                    <para><link linkend="transaction-realese_savepoint">RELEASE
-                            SAVEPOINT</link> — удаление точки сохранения.</para>
+                    <para><link linkend="transaction-realese_savepoint">RELEASE SAVEPOINT</link> —
+                        удаление точки сохранения.</para>
                 </listitem>
             </itemizedlist></para>
 
@@ -141,7 +139,7 @@ SET TRANSACTION
                 базой данных с момента последнего восстановления базы данных с резервной копии или с
                 момента первоначального создания базы данных. Это количество равняется числу
                     2<superscript>31</superscript> – 1, то есть 2 147 483 647.</para>
-            <para>Все предложения в операторе SET TRANSACTION являются необязательными. Если в
+            <para>Все предложения в операторе <code>SET TRANSACTION</code> являются необязательными. Если в
                 операторе запуска транзакции на выполнение не задано никакого предложения, то
                 предполагается старт транзакции со значениями всех характеристик по умолчанию (режим
                 доступа, режим разрешения блокировок и уровень изолированности).</para>
@@ -180,7 +178,7 @@ WAIT ISOLATION LEVEL SNAPSHOT;
                     <title>Имя транзакции</title>
                     <para>Необязательное предложение NAME задаёт имя транзакции. Предложение NAME
                         доступно только в Embedded SQL. Если предложение NAME не указано, то
-                        оператор SET TRANSACTION применяется к транзакции по умолчанию. За счёт
+                        оператор <code>SET TRANSACTION</code> применяется к транзакции по умолчанию. За счёт
                         именованных транзакций позволяется одновременный запуск нескольких активных
                         транзакций в одном приложении. При этом должна быть объявлена и
                         инициализирована одноименная переменная базового языка. В DSQL, это
@@ -215,6 +213,10 @@ WAIT ISOLATION LEVEL SNAPSHOT;
                                 транзакциях.</para>
                         </listitem>
                     </itemizedlist>
+
+                    <para>В Firebird API для режимов доступа предусмотрены следующие константы:
+                            <code>isc_tpb_write</code> соответсвует режиму <code>READ WRITE</code>,
+                            <code>isc_tpb_read</code> — <code>READ ONLY</code>.</para>
                 </section>
 
                 <section xml:id="transaction-set_transaction-lock_resolution_mode">
@@ -234,19 +236,22 @@ WAIT ISOLATION LEVEL SNAPSHOT;
                             <primary>SET TRANSACTION</primary>
                             <secondary>WAIT</secondary>
                         </indexterm>
-                        <para>В режиме WAIT (режим по умолчанию) при появлении конфликта с
-                            параллельными транзакциями, выполняющими конкурирующие обновления данных
-                            в той же базе данных, такая транзакция будет ожидать завершения
-                            конкурирующей транзакции путём её подтверждения (COMMIT) или отката
-                            (ROLLBACK). Иными словами, клиентское приложение будет переведено в
-                            режим ожидания до момента разрешения конфликта.</para>
-                        <para>Если для режима WAIT задать предложение LOCK TIMEOUT, то ожидание
-                            будет продолжаться только указанное в этом предложении количество
-                            секунд. По истечении этого срока будет выдано сообщение об ошибке:
-                            &quot;Lock time-out on wait transaction&quot; (Истечение времени
-                            ожидания блокировки для транзакции WAIT).</para>
+                        <para>В режиме <code>WAIT</code> (режим по умолчанию) при появлении
+                            конфликта с параллельными транзакциями, выполняющими конкурирующие
+                            обновления данных в той же базе данных, такая транзакция будет ожидать
+                            завершения конкурирующей транзакции путём её подтверждения (COMMIT) или
+                            отката (ROLLBACK). Иными словами, клиентское приложение будет переведено
+                            в режим ожидания до момента разрешения конфликта.</para>
+                        <para>Если для режима <code>WAIT</code> задать предложение <code>LOCK
+                                TIMEOUT</code>, то ожидание будет продолжаться только указанное в
+                            этом предложении количество секунд. По истечении этого срока будет
+                            выдано сообщение об ошибке: &quot;Lock time-out on wait
+                            transaction&quot; (Истечение времени ожидания блокировки для транзакции
+                            WAIT).</para>
                         <para>Этот режим даёт несколько отличные формы поведения в зависимости от
                             уровня изоляции транзакций.</para>
+                        <para>В Firebird API режиму <code>WAIT</code> соответсвует константа
+                                <code>isc_tpb_wait</code>.</para>
                     </section>
                     <section xml:id="transaction-set_transaction-no_wait_mode">
                         <title>Режим NO WAIT</title>
@@ -254,9 +259,11 @@ WAIT ISOLATION LEVEL SNAPSHOT;
                             <primary>SET TRANSACTION</primary>
                             <secondary>NO WAIT</secondary>
                         </indexterm>
-                        <para>Если установлен режим разрешения блокировок NO WAIT, то при появлении
-                            конфликта блокировки данная транзакция немедленно вызовет исключение
-                            базы данных.</para>
+                        <para>Если установлен режим разрешения блокировок <code>NO WAIT</code>, то
+                            при появлении конфликта блокировки данная транзакция немедленно вызовет
+                            исключение базы данных.</para>
+                        <para>В Firebird API режиму <code>NO WAIT</code> соответсвует константа
+                                <code>isc_tpb_nowait</code>.</para>
                     </section>
                 </section>
                 <section xml:id="transaction-set_transaction-isolation_level">
@@ -271,7 +278,7 @@ WAIT ISOLATION LEVEL SNAPSHOT;
                         транзакции до тех пор пока они не подтверждены. Уровень изолированности, а
                         иногда, другие атрибуты, определяет, как транзакции будут взаимодействовать
                         с другой транзакцией, которая хочет подтвердить изменения.</para>
-                    
+
                     <indexterm>
                         <primary>SET TRANSACTION</primary>
                         <secondary>ISOLATION LEVEL</secondary>
@@ -301,7 +308,7 @@ WAIT ISOLATION LEVEL SNAPSHOT;
                             <secondary>ISOLATION LEVEL</secondary>
                             <tertiary>SNAPSHOT</tertiary>
                         </indexterm>
-                        <para>Уровень изолированности SNAPSHOT (уровень изолированности по
+                        <para>Уровень изолированности <code>SNAPSHOT</code> (уровень изолированности по
                             умолчанию) означает, что этой транзакции видны лишь те изменения,
                             фиксация которых произошла не позднее момента старта этой транзакции.
                             Любые подтверждённые изменения, сделанные другими конкурирующими
@@ -312,9 +319,11 @@ WAIT ISOLATION LEVEL SNAPSHOT;
                         <note>
                             <para>Изменения, вносимые автономными транзакциями, также не будут видны
                                 в контексте той (&quot;внешней&quot;) транзакции, которая запустила
-                                эти автономные транзакции, если она работает в режиме SNAPSHOT.
+                                эти автономные транзакции, если она работает в режиме <code>SNAPSHOT</code>.
                             </para>
                         </note>
+                        <para>В Firebird API режиму изолированности <code>SNAPSHOT</code>
+                            соответсвует константа <code>isc_tpb_concurrency</code>.</para>
                     </section>
                     <section xml:id="transaction-isolation_level-snapshot_table_stability">
                         <title>Уровень изолированности SNAPSHOT TABLE STABILITY</title>
@@ -323,8 +332,8 @@ WAIT ISOLATION LEVEL SNAPSHOT;
                             <secondary>ISOLATION LEVEL</secondary>
                             <tertiary>SNAPSHOT TABLE STABILITY</tertiary>
                         </indexterm>
-                        <para>Уровень изоляции транзакции SNAPSHOT TABLE STABILITY позволяет, как и
-                            в случае SNAPSHOT, также видеть только те изменения, фиксация которых
+                        <para>Уровень изоляции транзакции <code>SNAPSHOT TABLE STABILITY</code> позволяет, как и
+                            в случае <code>SNAPSHOT</code>, также видеть только те изменения, фиксация которых
                             произошла не позднее момента старта этой транзакции. При этом после
                             старта такой транзакции в других клиентских транзакциях невозможно
                             выполнение изменений ни в каких таблицах этой базы данных, уже
@@ -332,13 +341,15 @@ WAIT ISOLATION LEVEL SNAPSHOT;
                             параллельных транзакциях приведут к исключениям базы данных.
                             Просматривать любые данные другие транзакции могут совершенно
                             свободно.</para>
-                        <para>При помощи предложения резервирования (RESERVING) можно разрешить
+                        <para>При помощи предложения резервирования <code>RESERVING</code> можно разрешить
                             другим транзакциям изменять данные в некоторых таблицах. </para>
-                        <para>Если на момент старта клиентом транзакции с уровнем изоляции SNAPSHOT
-                            TABLE STABILITY какая-нибудь другая транзакция выполнила
+                        <para>Если на момент старта клиентом транзакции с уровнем изоляции <code>SNAPSHOT
+                            TABLE STABILITY</code> какая-нибудь другая транзакция выполнила
                             неподтверждённое изменение данных любой таблицы базы данных, то запуск
-                            транзакции с таким уровнем изоляции приведёт к ошибке базы данных.
-                        </para>
+                            транзакции с таким уровнем изоляции приведёт к ошибке базы данных. </para>
+                        <para>В Firebird API режиму изолированности <code>SNAPSHOT TABLE
+                                STABILITY</code> соответсвует константа
+                                <code>isc_tpb_consistency</code>.</para>
                     </section>
                     <section xml:id="transaction-isolation_level-read_commited">
                         <title>Уровень изолированности READ COMMITTED</title>
@@ -347,49 +358,59 @@ WAIT ISOLATION LEVEL SNAPSHOT;
                             <secondary>ISOLATION LEVEL</secondary>
                             <tertiary>READ COMMITTED</tertiary>
                         </indexterm>
-                        <para>Уровень изолированности READ COMMITTED позволяет в транзакции без её
+                        <para>Уровень изолированности <code>READ COMMITTED</code> позволяет в транзакции без её
                             перезапуска видеть все подтверждённые изменения данных базы данных,
                             выполненные в других параллельных транзакциях. Неподтверждённые
                             изменения не видны в транзакции и этого уровня изоляции.</para>
                         <para>Для получения обновлённого списка строк интересующей таблицы
                             необходимо лишь повторное выполнение оператора SELECT в рамках активной
-                            транзакции READ COMMITTED без её перезапуска.</para>
-                        <section
-                            xml:id="transaction-isolation_level-read_commited-record_version">
+                            транзакции <code>READ COMMITTED</code> без её перезапуска.</para>
+                        <para>В Firebird API режиму изолированности <code>READ COMMITTED</code>
+                            соответсвует константа <code>isc_tpb_read_committed</code>.</para>
+                        <section xml:id="transaction-isolation_level-read_commited-record_version">
                             <title>RECORD_VERSION</title>
                             <para>Для этого уровня изолированности можно указать один из двух
                                 значений дополнительной характеристики в зависимости от желаемого
-                                способа разрешения конфликтов: RECORD_VERSION и NO RECORD_VERSION.
-                                Как видно из их имён они являются взаимоисключающими.</para>
+                                способа разрешения конфликтов: <code>RECORD_VERSION</code> и
+                                    <code>NO RECORD_VERSION</code>. Как видно из их имён они
+                                являются взаимоисключающими.</para>
 
                             <para><itemizedlist>
                                     <listitem>
-                                        <para>NO RECORD_VERSION (значение по умолчанию) является в
-                                            некотором роде механизмом двухфазной блокировки. В этом
-                                            случае транзакция не может прочитать любую запись,
-                                            которая была изменена параллельной активной
-                                            (неподтвержденной) транзакцией.</para>
-                                        <para>Если указана стратегия разрешения блокировок NO WAIT,
-                                            то будет немедленно выдано соответствующее
-                                            исключение.</para>
-                                        <para>Если указана стратегия разрешения блокировок WAIT, то
-                                            это приведёт к ожиданию завершения или откату
-                                            конкурирующей транзакции. Если конкурирующая транзакция
-                                            откатывается, или, если она завершается и её
-                                            идентификатор старее (меньше), чем идентификатор текущей
-                                            транзакции, то изменения в текущей транзакции
-                                            допускаются. Если конкурирующая транзакция завершается и
-                                            её идентификатор новее (больше), чем идентификатор
-                                            текущей транзакции, то будет выдана ошибка конфликта
-                                            блокировок.</para>
+                                        <para><code>NO RECORD_VERSION</code> (значение по умолчанию)
+                                            является в некотором роде механизмом двухфазной
+                                            блокировки. В этом случае транзакция не может прочитать
+                                            любую запись, которая была изменена параллельной
+                                            активной (неподтвержденной) транзакцией.</para>
+                                        <para>Если указана стратегия разрешения блокировок <code>NO
+                                                WAIT</code>, то будет немедленно выдано
+                                            соответствующее исключение.</para>
+                                        <para>Если указана стратегия разрешения блокировок
+                                                <code>WAIT</code>, то это приведёт к ожиданию
+                                            завершения или откату конкурирующей транзакции. Если
+                                            конкурирующая транзакция откатывается, или, если она
+                                            завершается и её идентификатор старее (меньше), чем
+                                            идентификатор текущей транзакции, то изменения в текущей
+                                            транзакции допускаются. Если конкурирующая транзакция
+                                            завершается и её идентификатор новее (больше), чем
+                                            идентификатор текущей транзакции, то будет выдана ошибка
+                                            конфликта блокировок.</para>
+                                        <para>В Firebird API для способа разрешения конфликтов
+                                                <code>NO RECORD_VERSION</code> соответсвует
+                                            константа <code>isc_tpb_no_rec_version</code>.</para>
                                     </listitem>
                                     <listitem>
-                                        <para>При задании RECORD_VERSION транзакция всегда читает
-                                            последнюю подтверждённую версию записей таблиц,
-                                            независимо от того, существуют ли изменённые и ещё не
-                                            подтверждённые версии этих записей. В этом случае режим
-                                            разрешения блокировок (WAIT или NO WAIT) никак не влияет
-                                            на поведение транзакции при её старте.</para>
+                                        <para>При задании <code>RECORD_VERSION</code> транзакция
+                                            всегда читает последнюю подтверждённую версию записей
+                                            таблиц, независимо от того, существуют ли изменённые и
+                                            ещё не подтверждённые версии этих записей. В этом случае
+                                            режим разрешения блокировок (<code>WAIT</code> или
+                                                <code>NO WAIT</code>) никак не влияет на поведение
+                                            транзакции при её старте.</para>
+                                        <para/>
+                                        <para>В Firebird API для способа разрешения конфликтов
+                                            <code>RECORD_VERSION</code> соответсвует
+                                            константа <code>isc_tpb_rec_version</code>.</para>
                                     </listitem>
                                 </itemizedlist></para>
                             <para/>
@@ -691,8 +712,8 @@ COMMIT [WORK] [TRANSACTION <replaceable>tr_name</replaceable>]
                 <title>См. также:</title>
 
                 <para>
-                    <link linkend="transaction-set_transaction">SET TRANSACTION</link>,
-                        <link linkend="transaction-rollback">ROLLBACK</link>. </para>
+                    <link linkend="transaction-set_transaction">SET TRANSACTION</link>, <link
+                        linkend="transaction-rollback">ROLLBACK</link>. </para>
             </formalpara>
         </section>
         <section xml:id="transaction-rollback">
@@ -773,8 +794,8 @@ ROLLBACK [WORK] [TRANSACTION <replaceable>tr_name</replaceable>]
                 <title>См. также:</title>
 
                 <para>
-                    <link linkend="transaction-set_transaction">SET TRANSACTION</link>,
-                        <link linkend="transaction-commit">COMMIT</link>. </para>
+                    <link linkend="transaction-set_transaction">SET TRANSACTION</link>, <link
+                        linkend="transaction-commit">COMMIT</link>. </para>
             </formalpara>
             <section xml:id="transaction-rollback-to_savepoint">
                 <info>
@@ -872,15 +893,13 @@ SAVEPOINT <replaceable>sp_name</replaceable>
             <para>Если имя точки сохранения уже существует в рамках транзакции, то существующая
                 точка сохранения будет удалена, и создаётся новая с тем же именем.</para>
             <para>Для отката изменений к точке сохранения используется оператор <link
-                    linkend="transaction-rollback-to_savepoint">ROLLBACK TO
-                SAVEPOINT</link>. </para>
+                    linkend="transaction-rollback-to_savepoint">ROLLBACK TO SAVEPOINT</link>. </para>
             <note>
                 <para>Внутренний механизм точек сохранения может использовать большие объёмы памяти,
                     особенно если вы обновляете одни и те же записи многократно в одной транзакции.
                     Если точка сохранения уже не нужна, но вы ещё не готовы закончить транзакцию, то
-                    можно ее удалить оператором <link
-                        linkend="transaction-realese_savepoint">RELEASE SAVEPOINT</link>,
-                    тем самым освобождая ресурсы.</para>
+                    можно ее удалить оператором <link linkend="transaction-realese_savepoint"
+                        >RELEASE SAVEPOINT</link>, тем самым освобождая ресурсы.</para>
             </note>
             <para><emphasis>Примеры:</emphasis></para>
             <example>
@@ -904,9 +923,9 @@ SELECT * FROM TEST; -- возвращает одну строку
                 <title>См. также:</title>
 
                 <para>
-                    <link linkend="transaction-rollback-to_savepoint">ROLLBACK TO
-                        SAVEPOINT</link>, <link linkend="transaction-realese_savepoint"
-                        >RELEASE SAVEPOINT</link>. </para>
+                    <link linkend="transaction-rollback-to_savepoint">ROLLBACK TO SAVEPOINT</link>,
+                        <link linkend="transaction-realese_savepoint">RELEASE SAVEPOINT</link>.
+                </para>
             </formalpara>
         </section>
         <section xml:id="transaction-realese_savepoint">
