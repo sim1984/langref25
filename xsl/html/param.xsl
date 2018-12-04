@@ -58,7 +58,7 @@
     </xsl:variable>
 
 	<xsl:param name="highlight.source" select="1"/>
-    <xsl:param name="highlight.xslthl.config">file:/g:/fbdoc/langref25/xsl/highlighting/xslthl-config.xml</xsl:param>
+    <xsl:param name="highlight.xslthl.config">file:/d:/fbdoc/langref25/xsl/highlighting/xslthl-config.xml</xsl:param>
 
     <!-- Подсветка строк в теге programlising language="sql" -->
     <xsl:template match="xslthl:string" mode="xslthl">
