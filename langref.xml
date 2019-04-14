@@ -6,7 +6,7 @@
     <info>
         <title>Руководство по языку SQL СУБД Firebird 2.5</title>
         <subtitle>Firebird 2.5.9</subtitle>
-        <edition>25 марта 2019 — v.0490-1</edition>
+        <edition>14 апреля 2019 — v.0491-1</edition>
 
         <authorgroup>
             <author>
@@ -66,7 +66,7 @@
     <xi:include href="montables.xml" xpointer="element(/1)"/>
     <xi:include href="charset-coll.xml" xpointer="element(/1)"/>
     <xi:include href="license.xml" xpointer="element(/1)"/>
-    
+
     <index>
         <info>
             <title>Алфавитный указатель</title>
