@@ -2754,26 +2754,32 @@ CONSTRAINT FK_ARTSOURCE FOREIGN KEY(DEALER_ID, COUNTRY)
               помнить, что выражение в CHECK лишь дополняет условие проверки, которое может уже быть
               определено в домене.</para>
           </important>
+          
+          <para>На уровне столбца или таблицы выражение в предложении
+            <database>CHECK</database> ссылается на входящее значения с помощью с
+            помощью идентификаторов столбцов, в отличие от доменов, где в ограничении
+            <database>CHECK</database> для этих целей используется ключевое слово
+            <database>VALUE</database>. </para>
 
-          <para>На уровне столбца выражение в предложении CHECK ссылается на входящее значение с
-            помощью ключевого слова VALUE, так же как предложение CHECK в определении домена:
-            <programlisting language="sql">
-...
-CURRENCY CHAR(3) NOT NULL
-CONSTRAINT CHECK_CURRENCY
-CHECK (VALUE IN ('AUD','EUR','GBP','RUR','USD','YEN')),
-...                  
-                </programlisting></para>
-
-          <para>На уровне таблицы выражение в предложении CHECK ссылается на входящее значение по
-            идентификатору столбца:
-            <programlisting language="sql">
-...
-CONSTRAINT CHECK_EXCHANGE
-CHECK (CURRENCY IN ('AUD','EUR','GBP','RUR','USD','YEN')
-AND CURRENCY &lt;&gt; EXCHANGE_CURRENCY),
-...               
-                </programlisting></para>
+          <formalpara>
+            <title>Примеры:</title>
+            <para>
+              <example>
+                <title>CHECK ограничения уровня столбца и уровня таблицы</title>
+                <para>
+                  <programlisting language="sql">
+CREATE TABLE PLACES (
+  ...
+  LAT DECIMAL(9, 6) CHECK (ABS(LAT) &lt;= 90),
+  LON DECIMAL(9, 6) CHECK (ABS(LON) &lt;= 180),
+  ...
+  CONSTRAINT CHK_POLES CHECK (ABS(LAT) &lt; 90 OR LON = 0)
+);               
+                </programlisting>
+                </para>
+              </example>
+            </para>
+          </formalpara>
         </section>
       </section>
 
