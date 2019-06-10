@@ -74,12 +74,12 @@
   <t:titlepage-content t:side="recto">
     <title/>
     <subtitle/>
-    <edition/>
     <corpauthor/>
     <authorgroup/>
     <author/>
     <othercredit/>
-    <releaseinfo/>   
+    <releaseinfo/>
+    <edition/>
     <copyright/>
     <legalnotice/>
     <pubdate/>   
