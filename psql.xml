@@ -1691,7 +1691,7 @@ END
 
             <note>
                 <para>Этот оператор считается устаревшим. Начиная с Firebird 1.5 рекомендуется
-                    использовать SQL-99 совместимый оператор <link linkend="psql-statements-leave"
+                    использовать SQL-99 совместимый оператор <link linkend="psql-operators-leave"
                         >LEAVE</link>.</para>
             </note>
         </section>
