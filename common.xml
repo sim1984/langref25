@@ -557,10 +557,9 @@ SET A = 4 + 1/(B-C)*D
                     <table xml:id="common-tbl-compar" frame="all">
                         <?dbfo keep-together='auto'?>
                         <title>Операторы сравнения</title>
-                        <tgroup cols="3">
+                        <tgroup cols="2">
                             <colspec colname="c1" colnum="1" colwidth="1*" align="center"/>
                             <colspec colname="c2" colnum="2" colwidth="2*" align="center"/>
-                            <colspec colname="c3" colnum="3" colwidth="1*" align="center"/>
                             <thead>
                                 <row valign="middle">
                                     <entry align="center">Оператор</entry>
