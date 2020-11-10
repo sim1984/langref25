@@ -5443,14 +5443,6 @@ ON numbers.num = t.n
 WHEN NOT MATCHED THEN
   INSERT(num) VALUES(t.n);
   
--- с использованием предложения DELETE
-MERGE INTO SALARY_HISTORY
-USING (
-  SELECT EMP_NO
-  FROM EMPLOYEE
-  WHERE DEPT_NO = 120) EMP
-ON SALARY_HISTORY.EMP_NO = EMP.EMP_NO
-WHEN MATCHED THEN DELETE
 ]]>                    
                 </programlisting>
                     </para>
